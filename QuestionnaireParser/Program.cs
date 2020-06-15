@@ -31,7 +31,6 @@ namespace QuestionnaireParser
             else throw new DirectoryNotFoundException($"Directory \"{outputPath}\" does not exist");
 
             Image<Rgb, byte>[] pdfImgs = null;
-            //Mat[] pdfImgs = null;
 
             var pdfDir = @"C:\Users\virus\AppData\Roaming\QuestionnaireParser\ActualImages\1";
             if (Directory.Exists(pdfDir))

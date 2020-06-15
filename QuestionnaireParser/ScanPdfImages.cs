@@ -13,7 +13,6 @@ namespace QuestionnaireParser
     class ScanPdfImages
     {
         public Image<Rgb, byte>[] Images { get; }
-        //public Mat[] Images { get; }
         
         public ScanPdfImages(string[] imgPaths)
         {
@@ -23,8 +22,6 @@ namespace QuestionnaireParser
                     return new Image<Rgb, byte>(bmp);
             })
                 .ToArray();
-
-            //Images = imgPaths.Select(path => new Mat(path, LoadImageType.Unchanged)).ToArray();
         }
         
     }
