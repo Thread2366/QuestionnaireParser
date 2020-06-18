@@ -10,9 +10,8 @@ using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Emgu.CV.UI;
 using System.Windows.Forms;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Graphics.ES11;
 using Emgu.CV.Features2D;
+using Emgu.CV.CvEnum;
 
 namespace QuestionnaireParser
 {
@@ -22,57 +21,97 @@ namespace QuestionnaireParser
         {
         }
 
-        public Difference Match(Image<Rgb, byte> template, Image<Rgb, byte> actual)
+        public Difference Match(Image<Rgb, byte> template, Image<Rgb, byte> scan)
         {
-            var templatePol = Polarize(template);
-            var actualPol = Polarize(actual);
-            Application.Run(new ResultsForm(templatePol, actualPol));
-            //template = template.Sobel(1, 1, 3).Convert<Rgb, byte>();
-            //actual = actual.Sobel(1, 1, 3).Convert<Rgb, byte>();
-            Application.Run(new ResultsForm(template, actual));
+            var templateBin = Binarize(template);
+            var scanBin = Binarize(scan);
+            Application.Run(new ResultsForm(templateBin, scanBin));
+            //var templateSobel = template.Sobel(1, 1, 3);
+            //var scanSobel = scan.Sobel(1, 1, 3);
+            //Application.Run(new ResultsForm(templateSobel, scanSobel));
+            Application.Run(new ResultsForm(template, scan));
 
-            var vector1 = new VectorOfKeyPoint();
-            var vector2 = new VectorOfKeyPoint();
+            var templateKeypoints = new VectorOfKeyPoint();
+            Mat templateDescriptors = new Mat();
+            var scanKeypoints = new VectorOfKeyPoint();
+            Mat scanDescriptors = new Mat();
             
             SURF surf = new SURF(300);
-            surf.DetectAndCompute(template, null, vector1, template, false);
-            surf.DetectAndCompute(actual, null, vector2, template, false);
+            surf.DetectAndCompute(templateBin, null, templateKeypoints, templateDescriptors, false);
+            var d1 = templateDescriptors.GetData();
+            surf.DetectAndCompute(scanBin, null, scanKeypoints, scanDescriptors, false);
+            var d2 = scanDescriptors.GetData();
 
-            var bfMatcher = new BFMatcher(DistanceType.Hamming);
-            bfMatcher.Add(vector1);
+            //templateDescriptors.ConvertTo(templateDescriptors, DepthType.Cv8U);
+            //d1 = templateDescriptors.GetData();
+            //scanDescriptors.ConvertTo(scanDescriptors, DepthType.Cv8U);
+            //d2 = scanDescriptors.GetData();
+
+            var bfMatcher = new BFMatcher(DistanceType.L2);
+            bfMatcher.Add(templateDescriptors);
             var matches = new VectorOfVectorOfDMatch();
-            bfMatcher.KnnMatch(vector2, matches, 3, null);
+            bfMatcher.KnnMatch(scanDescriptors, matches, 2, null);
+            var mdata = MatchesToArray(matches);
 
 
-            var array1 = vector1.ToArray();
-            var array2 = vector2.ToArray();
+            var mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(255));
+            var data = mask.GetData();
 
-            var angle1 = array1.Average(p => p.Angle);
-            var angle2 = array2.Average(p => p.Angle);
+            Features2DToolbox.VoteForUniqueness(matches, 0.8, mask);
+            data = mask.GetData();
 
-            var offsetX1 = array1.Average(p => p.Point.X);
-            var offsetX2 = array2.Average(p => p.Point.X);
+            int count = Features2DToolbox.VoteForSizeAndOrientation(templateKeypoints, scanKeypoints, matches, mask, 1.5, 20);
+            data = mask.GetData();
 
-            var offsetY1 = array1.Average(p => p.Point.Y);
-            var offsetY2 = array2.Average(p => p.Point.Y);
+            Mat homography = null;
+            if (count >= 4)
+            {
+                homography = 
+                    Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(
+                        templateKeypoints, scanKeypoints, matches, mask, 5);
+            }
 
-            return new Difference(angle2 - angle1, offsetX2 - offsetX1, offsetY2 - offsetY1);
+            if (homography != null)
+            {
+                Rectangle rect = new Rectangle(Point.Empty, template.Size);
+                PointF[] pts = new PointF[]
+                {
+                    new PointF(rect.Left, rect.Bottom),
+                    new PointF(rect.Right, rect.Bottom),
+                    new PointF(rect.Right, rect.Top),
+                    new PointF(rect.Left, rect.Top)
+                };
+
+                pts = CvInvoke.PerspectiveTransform(pts, homography);
+                Point[] points = Array.ConvertAll(pts, Point.Round);
+                RotatedRect a = CvInvoke.MinAreaRect(pts);
+                return new Difference(-a.Angle - 90, pts[3].X, pts[3].Y);
+            }
+            return null;
         }
 
-        private static Image<Rgb, byte> Polarize(Image<Rgb, byte> img)
+        private static Image<Gray, byte> Binarize(Image<Rgb, byte> img)
         {
-            var sourceData = img.Data;
-            var resultData = new byte[img.Height, img.Width, 3];
-            for (int x = 0; x < img.Width; x++)
-                for (int y = 0; y < img.Height; y++)
+            var gray = img.Convert<Gray, byte>();
+            var binary = new Image<Gray, byte>(gray.Width, gray.Height, new Gray(0));
+            CvInvoke.Threshold(gray, binary, 150, 255, ThresholdType.Binary);
+            return binary;
+        }
+
+        private static List<MDMatch>[] MatchesToArray(VectorOfVectorOfDMatch matches)
+        {
+            var result = new List<MDMatch>[matches.Size];
+            for (int i = 0; i < matches.Size; i++)
+            {
+                var vec = matches[i];
+                result[i] = new List<MDMatch>();
+                for (int j = 0; j < vec.Size; j++)
                 {
-                    var gray = Enumerable.Range(0, 3).Average(i => sourceData[y, x, i]);
-                    var polarized = gray < 200 ? (byte)0 : (byte)255;
-                    resultData[y, x, 0] = polarized;
-                    resultData[y, x, 1] = polarized;
-                    resultData[y, x, 2] = polarized;
+                    result[i].Add(vec[j]);
                 }
-            return new Image<Rgb, byte>(resultData);
+            }
+            return result;
         }
     }
 }
