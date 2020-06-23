@@ -39,8 +39,8 @@ namespace QuestionnaireParser
 
 
             var diff = new Matcher().Match(imgs[0], pdfImgs[0]);
-            pdfImgs[0] = pdfImgs[0].Rotate(diff.Angle, new Rgb(Color.White));
-            pdfImgs[0].WarpAffine()
+            //pdfImgs[0] = pdfImgs[0].Rotate(diff.Angle, new Rgb(Color.White));
+            //pdfImgs[0].WarpAffine()
         }
 
         private static string[] GetFilesArray(string dirPath)

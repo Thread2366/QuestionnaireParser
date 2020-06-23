@@ -25,7 +25,6 @@ namespace QuestionnaireParser
         {
             var templateBin = Binarize(template);
             var scanBin = Binarize(scan);
-            Application.Run(new ResultsForm(templateBin, scanBin));
             //var templateSobel = template.Sobel(1, 1, 3);
             //var scanSobel = scan.Sobel(1, 1, 3);
             //Application.Run(new ResultsForm(templateSobel, scanSobel));
@@ -36,18 +35,12 @@ namespace QuestionnaireParser
             var scanKeypoints = new VectorOfKeyPoint();
             Mat scanDescriptors = new Mat();
             
-            SURF surf = new SURF(300);
+            ORBDetector surf = new ORBDetector(300);
             surf.DetectAndCompute(templateBin, null, templateKeypoints, templateDescriptors, false);
-            var d1 = templateDescriptors.GetData();
             surf.DetectAndCompute(scanBin, null, scanKeypoints, scanDescriptors, false);
-            var d2 = scanDescriptors.GetData();
 
-            //templateDescriptors.ConvertTo(templateDescriptors, DepthType.Cv8U);
-            //d1 = templateDescriptors.GetData();
-            //scanDescriptors.ConvertTo(scanDescriptors, DepthType.Cv8U);
-            //d2 = scanDescriptors.GetData();
 
-            var bfMatcher = new BFMatcher(DistanceType.L2);
+            var bfMatcher = new BFMatcher(DistanceType.Hamming);
             bfMatcher.Add(templateDescriptors);
             var matches = new VectorOfVectorOfDMatch();
             bfMatcher.KnnMatch(scanDescriptors, matches, 2, null);
