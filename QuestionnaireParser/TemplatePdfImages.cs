@@ -14,11 +14,11 @@ namespace QuestionnaireParser
 {
     class TemplatePdfImages
     {
-        private static Image<Rgb, byte>[] images;
+        private static Image<Bgr, byte>[] images;
 
         private TemplatePdfImages() { }
 
-        public static Image<Rgb, byte>[] GetInstance(string gsPath, string templatePdfPath, string outputPath)
+        public static Image<Bgr, byte>[] GetInstance(string gsPath, string templatePdfPath, string outputPath)
         {
             if (images != null) return images;
 
@@ -29,21 +29,21 @@ namespace QuestionnaireParser
                 .Select(file =>
                 {
                     using (var bmp = new Bitmap(file.FullName))
-                        return new Image<Rgb, byte>(bmp);
+                        return new Image<Bgr, byte>(bmp);
                 })
                 .ToArray();
 
             return images;
         }
 
-        public static Image<Rgb, byte>[] GetInstance(string[] imgPaths)
+        public static Image<Bgr, byte>[] GetInstance(string[] imgPaths)
         {
             if (images != null) return images;
 
             images = imgPaths.Select(path =>
             {
                 using (var bmp = new Bitmap(path))
-                    return new Image<Rgb, byte>(bmp);
+                    return new Image<Bgr, byte>(bmp);
             })
                 .ToArray();
 

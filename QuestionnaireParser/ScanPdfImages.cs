@@ -12,14 +12,14 @@ namespace QuestionnaireParser
 {
     class ScanPdfImages
     {
-        public Image<Rgb, byte>[] Images { get; }
+        public Image<Bgr, byte>[] Images { get; }
         
         public ScanPdfImages(string[] imgPaths)
         {
             Images = imgPaths.Select(path =>
             {
                 using (var bmp = new Bitmap(path))
-                    return new Image<Rgb, byte>(bmp);
+                    return new Image<Bgr, byte>(bmp);
             })
                 .ToArray();
         }

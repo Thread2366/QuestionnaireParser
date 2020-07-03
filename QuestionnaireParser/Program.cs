@@ -15,7 +15,7 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            Image<Rgb, byte>[] imgs = null;
+            Image<Bgr, byte>[] imgs = null;
 
             var appdata = Environment.GetEnvironmentVariable("appdata");
             var outputPath = Path.Combine(appdata, "QuestionnaireParser", "TemplateImages");
@@ -30,7 +30,7 @@ namespace QuestionnaireParser
                 imgs = TemplatePdfImages.GetInstance(GetFilesArray(outputPath));
             else throw new DirectoryNotFoundException($"Directory \"{outputPath}\" does not exist");
 
-            Image<Rgb, byte>[] pdfImgs = null;
+            Image<Bgr, byte>[] pdfImgs = null;
 
             var pdfDir = @"C:\Users\virus\AppData\Roaming\QuestionnaireParser\Scans\1";
             if (Directory.Exists(pdfDir))
