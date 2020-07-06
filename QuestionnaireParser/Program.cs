@@ -1,8 +1,11 @@
-﻿using Emgu.CV;
+﻿using AForge.Imaging;
+using AForge.Imaging.Filters;
+using Emgu.CV;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +18,9 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
+            //Test();
+            //return;
+
             Image<Bgr, byte>[] imgs = null;
 
             var appdata = Environment.GetEnvironmentVariable("appdata");
@@ -42,6 +48,40 @@ namespace QuestionnaireParser
             //pdfImgs[0] = pdfImgs[0].Rotate(diff.Angle, new Rgb(Color.White));
             //pdfImgs[0].WarpAffine()
         }
+
+        //private static void Test()
+        //{
+        //    var template = new Bitmap(@"C:\Users\virus\AppData\Roaming\QuestionnaireParser\TemplateImages\template_1.jpg");
+        //    var scan = new Bitmap(@"C:\Users\virus\AppData\Roaming\QuestionnaireParser\Scans\1\scan_1.jpg");
+
+        //    var templateCv = new Image<Gray, byte>(template);
+        //    CvInvoke.Threshold(templateCv, templateCv, 150, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
+        //    var scanCv = new Image<Gray, byte>(scan);
+        //    CvInvoke.Threshold(scanCv, scanCv, 150, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
+
+        //    template = templateCv.ToBitmap();
+        //    scan = scanCv.ToBitmap();
+
+        //    //var grayscale = new Grayscale(1, 1, 1);
+        //    //template = grayscale.Apply(template);
+        //    //scan = grayscale.Apply(scan);
+
+        //    //template.Save(@"C:\Users\virus\Desktop\templateGray.jpg");
+        //    //scan.Save(@"C:\Users\virus\Desktop\scanGray.jpg");
+
+        //    //var threshold = new BradleyLocalThresholding();
+        //    //template = threshold.Apply(template);
+        //    //scan = threshold.Apply(scan);
+
+        //    template.Save(@"C:\Users\virus\Desktop\templateBin.jpg");
+        //    scan.Save(@"C:\Users\virus\Desktop\scanBin.jpg");
+
+        //    var skewChecker = new DocumentSkewChecker();
+        //    var angle = skewChecker.GetSkewAngle(scan);
+        //    var rotate = new RotateBilinear(-angle);
+        //    scan = rotate.Apply(scan);
+        //    scan.Save(@"C:\Users\virus\Desktop\scanBin.jpg");
+        //}
 
         private static string[] GetFilesArray(string dirPath)
         {
