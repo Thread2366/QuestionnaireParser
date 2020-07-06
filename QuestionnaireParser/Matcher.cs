@@ -23,26 +23,32 @@ namespace QuestionnaireParser
         {
         }
 
-        public Difference Match(Image<Bgr, byte> template, Image<Bgr, byte> scan)
+        public void Match(Image<Bgr, byte> template, Image<Bgr, byte> scan)
         {
             var viewer = new ImageViewer();
 
-            //viewer.Image = scan;
-            //viewer.ShowDialog();
             scan = scan.SmoothGaussian(5);
-
             var templateBin = Binarize(template, 200).Not();
             var scanBin = Binarize(scan, 200).Not();
             scanBin.ROI = new Rectangle(0, 0, templateBin.Width, scanBin.Height);
             scanBin = scanBin.Copy();
 
-            Mat linesImg = new Mat(scanBin.Size, DepthType.Cv8U, 1);
-            var lines = CvInvoke.HoughLinesP(scanBin, 1, Math.PI / 1800, 100, 200, 20);
+            scanBin = Deskew(scanBin);
+
+            viewer.WindowState = FormWindowState.Maximized;
+            viewer.Image = scanBin.Or(templateBin);
+            viewer.ShowDialog();
+        }
+
+        public Image<Gray, byte> Deskew(Image<Gray, byte> source)
+        {
+            Mat linesImg = new Mat(source.Size, DepthType.Cv8U, 1);
+            var lines = CvInvoke.HoughLinesP(source, 1, Math.PI / 180, 100, 200, 20);
             for (int i = 0; i < lines.Length; i++)
             {
                 CvInvoke.Line(linesImg, lines[i].P1, lines[i].P2, new MCvScalar(255));
             }
-            var horizontal = new LineSegment2D(Point.Empty, new Point(scanBin.Width, 0));
+            var horizontal = new LineSegment2D(Point.Empty, new Point(source.Width, 0));
             var angles = lines
                 .Select(l => l.GetExteriorAngleDegree(horizontal))
                 .Select(a => a > 45 ? a - 90 : a);
@@ -66,13 +72,7 @@ namespace QuestionnaireParser
             //    .ToArray();
 
             //var rect = CvInvoke.MinAreaRect(pts);
-            scanBin = scanBin.Rotate(skewAngle, new Gray(0));
-
-            viewer.WindowState = FormWindowState.Maximized;
-            viewer.Image = scanBin.ConcateHorizontal(linesImg.ToImage<Gray, byte>());
-            viewer.ShowDialog();
-
-            return null;
+            return source.Rotate(skewAngle, new Gray(0));
         }
 
         //public Difference Match(Image<Bgr, byte> template, Image<Bgr, byte> scan)

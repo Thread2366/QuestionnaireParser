@@ -44,7 +44,9 @@ namespace QuestionnaireParser
             else throw new DirectoryNotFoundException($"Directory \"{pdfDir}\" does not exist");
 
 
-            var diff = new Matcher().Match(imgs[0], pdfImgs[0]);
+            new Matcher().Match(imgs[0], pdfImgs[0]);
+            new Matcher().Match(imgs[1], pdfImgs[1]);
+
             //pdfImgs[0] = pdfImgs[0].Rotate(diff.Angle, new Rgb(Color.White));
             //pdfImgs[0].WarpAffine()
         }
