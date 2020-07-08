@@ -75,6 +75,11 @@ namespace QuestionnaireParser
             return source.Rotate(skewAngle, new Gray(0));
         }
 
+        public void IndicateInputs()
+        {
+            
+        }
+
         //public Difference Match(Image<Bgr, byte> template, Image<Bgr, byte> scan)
         //{
         //    var templateBin = Binarize(template, 150);
