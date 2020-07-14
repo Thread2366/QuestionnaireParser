@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<InputLocations>
+  <Page Number="0">
+    <Line>
+      <Point X="276" Y="1140" />
+      <Point X="620" Y="1140" />
+      <Point X="964" Y="1140" />
+      <Point X="1308" Y="1140" />
+      <Point X="1652" Y="1140" />
+      <Point X="1996" Y="1140" />
+    </Line>
+    <Line>
+      <Point X="276" Y="1470" />
+      <Point X="620" Y="1470" />
+      <Point X="964" Y="1470" />
+      <Point X="1308" Y="1470" />
+      <Point X="1652" Y="1470" />
+      <Point X="1996" Y="1470" />
+    </Line>
+    <Line>
+      <Point X="276" Y="1800" />
+      <Point X="620" Y="1800" />
+      <Point X="964" Y="1800" />
+      <Point X="1308" Y="1800" />
+      <Point X="1652" Y="1800" />
+      <Point X="1996" Y="1800" />
+    </Line>
+    <Line>
+      <Point X="276" Y="2134" />
+      <Point X="620" Y="2134" />
+      <Point X="964" Y="2134" />
+      <Point X="1308" Y="2134" />
+      <Point X="1652" Y="2134" />
+      <Point X="1996" Y="2134" />
+    </Line>
+    <Line>
+      <Point X="276" Y="2464" />
+      <Point X="620" Y="2464" />
+      <Point X="964" Y="2464" />
+      <Point X="1308" Y="2464" />
+      <Point X="1652" Y="2464" />
+      <Point X="1996" Y="2464" />
+    </Line>
+    <Line>
+      <Point X="276" Y="2794" />
+      <Point X="964" Y="2794" />
+      <Point X="1652" Y="2794" />
+    </Line>
+    <Line>
+      <Point X="276" Y="3126" />
+      <Point X="964" Y="3126" />
+      <Point X="1652" Y="3126" />
+    </Line>
+  </Page>
+  <Page Number="1">
+    <Line>
+      <Point X="276" Y="400" />
+      <Point X="620" Y="400" />
+      <Point X="964" Y="400" />
+      <Point X="1308" Y="400" />
+      <Point X="1652" Y="400" />
+      <Point X="1996" Y="400" />
+    </Line>
+    <Line>
+      <Point X="276" Y="732" />
+      <Point X="620" Y="732" />
+      <Point X="964" Y="732" />
+      <Point X="1308" Y="732" />
+      <Point X="1652" Y="732" />
+      <Point X="1996" Y="732" />
+    </Line>
+    <Line>
+      <Point X="276" Y="1064" />
+      <Point X="620" Y="1064" />
+      <Point X="964" Y="1064" />
+      <Point X="1308" Y="1064" />
+      <Point X="1652" Y="1064" />
+      <Point X="1996" Y="1064" />
+    </Line>
+    <Line>
+      <Point X="276" Y="1464" />
+      <Point X="620" Y="1464" />
+      <Point X="964" Y="1464" />
+      <Point X="1308" Y="1464" />
+      <Point X="1652" Y="1464" />
+      <Point X="1996" Y="1464" />
+    </Line>
+    <Line>
+      <Point X="276" Y="1794" />
+      <Point X="620" Y="1794" />
+      <Point X="964" Y="1794" />
+      <Point X="1308" Y="1794" />
+      <Point X="1652" Y="1794" />
+      <Point X="1996" Y="1794" />
+    </Line>
+    <Line>
+      <Point X="1308" Y="2054" />
+      <Point X="1652" Y="2054" />
+      <Point X="1996" Y="2054" />
+    </Line>
+    <Line>
+      <Point X="276" Y="2340" />
+      <Point X="464" Y="2340" />
+      <Point X="652" Y="2340" />
+      <Point X="840" Y="2340" />
+      <Point X="1028" Y="2340" />
+      <Point X="1216" Y="2340" />
+      <Point X="1404" Y="2340" />
+      <Point X="1592" Y="2340" />
+      <Point X="1780" Y="2340" />
+      <Point X="1968" Y="2340" />
+      <Point X="2156" Y="2340" />
+    </Line>
+  </Page>
+  <InputSize Width="48" Height="48" />
+</InputLocations>

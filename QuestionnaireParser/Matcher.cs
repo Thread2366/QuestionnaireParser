@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV.XFeatures2D;
@@ -14,6 +15,7 @@ using Emgu.CV.Features2D;
 using Emgu.CV.CvEnum;
 using AForge.Math.Geometry;
 using System.Collections.Specialized;
+using System.Xml.Linq;
 
 namespace QuestionnaireParser
 {
@@ -34,27 +36,27 @@ namespace QuestionnaireParser
             scanBin = scanBin.Copy();
 
             scanBin = Deskew(scanBin);
+            //viewer.Image = scanBin.ConcateHorizontal(templateBin);
+            //viewer.ShowDialog();
+            FindInputs(scanBin, 0);
 
             viewer.WindowState = FormWindowState.Maximized;
             viewer.Image = scanBin.Or(templateBin);
             viewer.ShowDialog();
         }
 
-        public Image<Gray, byte> Deskew(Image<Gray, byte> source)
+        public Image<Gray, byte> Deskew(Image<Gray, byte> image)
         {
-            Mat linesImg = new Mat(source.Size, DepthType.Cv8U, 1);
-            var lines = CvInvoke.HoughLinesP(source, 1, Math.PI / 180, 100, 200, 20);
+            Mat linesImg = new Mat(image.Size, DepthType.Cv8U, 1);
+            var lines = CvInvoke.HoughLinesP(image, 1, Math.PI / 180, 100, 200, 20);
             for (int i = 0; i < lines.Length; i++)
             {
                 CvInvoke.Line(linesImg, lines[i].P1, lines[i].P2, new MCvScalar(255));
             }
-            var horizontal = new LineSegment2D(Point.Empty, new Point(source.Width, 0));
+            var horizontal = new LineSegment2D(Point.Empty, new Point(image.Width, 0));
             var angles = lines
                 .Select(l => l.GetExteriorAngleDegree(horizontal))
                 .Select(a => a > 45 ? a - 90 : a);
-
-            //angles = angles
-            //    .Where(a => Math.Abs(a) > 0.0000001);
 
             var count = angles.Count();
             var arr = angles.OrderBy(a => a).ToArray();
@@ -63,21 +65,198 @@ namespace QuestionnaireParser
                 (arr[count / 2] + arr[count / 2 + 1]) / 2;
 
             var skewAngle = angles.Where(a => Math.Abs(a - median) < 0.5).Average();
-
-            //var pts = Enumerable.Range(0, scanBin.Width)
-            //    .SelectMany(x => Enumerable.Range(0, scanBin.Height)
-            //        .Select(y => new Point(x, y)))
-            //    .Where(p => scanBin[p].Intensity == 255)
-            //    .Select(p => (PointF)p)
-            //    .ToArray();
-
-            //var rect = CvInvoke.MinAreaRect(pts);
-            return source.Rotate(skewAngle, new Gray(0));
+            return image.Rotate(skewAngle, new Gray(0));
         }
 
-        public void IndicateInputs()
+        public Point[] FindInputs(Image<Gray, byte> image, int page)
         {
-            
+            var path = @"C:\Users\virus\Source\Repos\QuestionnaireParser\QuestionnaireParser\inputLocations.xml";
+            var xml = XElement.Parse(File.ReadAllText(path));
+
+            var originalPoints = xml
+                .Elements("Page")
+                .First(node => node.Attribute("Number").Value.Equals(page.ToString()))
+                .Descendants("Point")
+                .Select(node => new Point(int.Parse(node.Attribute("X").Value), int.Parse(node.Attribute("Y").Value)));
+
+            var inpNode = xml.Element("InputSize");
+            var rectSize = new Size(int.Parse(inpNode.Attribute("Width").Value), int.Parse(inpNode.Attribute("Height").Value));
+            var localitySize = new Size(200, 200);
+
+            var rectPts = Enumerable.Range(0, rectSize.Width)
+                .SelectMany(x =>
+                    Enumerable.Range(0, rectSize.Height)
+                    .Where(y => x == 0 || y == 0 || x == rectSize.Width - 1 || y == rectSize.Height - 1)
+                    .Select(y => new Point(x, y)));
+
+            var viewer = new ImageViewer() { WindowState = FormWindowState.Maximized };
+
+            var locality = new Rectangle(Point.Empty, localitySize);
+            foreach (var origPt in originalPoints)
+            {
+                locality.Location = new Point(origPt.X - localitySize.Width / 2, origPt.Y - localitySize.Height / 2);
+                image.ROI = locality;
+                var roi = image.Copy();
+
+                viewer.Image = roi;
+                viewer.ShowDialog();
+
+                var b = new SimpleBlobDetector();
+                var points = b.Detect(roi);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public void LocateInputs()
+        {
+            var pts = new Point[][][]
+            {
+                new Point[][]
+                {
+                    new Point[]
+                    {
+                        new Point(276, 1140),
+                        new Point(620, 1140),
+                        new Point(964, 1140),
+                        new Point(1308, 1140),
+                        new Point(1652, 1140),
+                        new Point(1996, 1140)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1470),
+                        new Point(620, 1470),
+                        new Point(964, 1470),
+                        new Point(1308, 1470),
+                        new Point(1652, 1470),
+                        new Point(1996, 1470)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1800),
+                        new Point(620, 1800),
+                        new Point(964, 1800),
+                        new Point(1308, 1800),
+                        new Point(1652, 1800),
+                        new Point(1996, 1800)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2134),
+                        new Point(620, 2134),
+                        new Point(964, 2134),
+                        new Point(1308, 2134),
+                        new Point(1652, 2134),
+                        new Point(1996, 2134)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2464),
+                        new Point(620, 2464),
+                        new Point(964, 2464),
+                        new Point(1308, 2464),
+                        new Point(1652, 2464),
+                        new Point(1996, 2464)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2794),
+                        new Point(964, 2794),
+                        new Point(1652, 2794)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 3126),
+                        new Point(964, 3126),
+                        new Point(1652, 3126)
+                    },
+                },
+                new Point[][]
+                {
+                    new Point[]
+                    {
+                        new Point(276, 400),
+                        new Point(620, 400),
+                        new Point(964, 400),
+                        new Point(1308, 400),
+                        new Point(1652, 400),
+                        new Point(1996, 400)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 732),
+                        new Point(620, 732),
+                        new Point(964, 732),
+                        new Point(1308, 732),
+                        new Point(1652, 732),
+                        new Point(1996, 732)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1064),
+                        new Point(620, 1064),
+                        new Point(964, 1064),
+                        new Point(1308, 1064),
+                        new Point(1652, 1064),
+                        new Point(1996, 1064)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1464),
+                        new Point(620, 1464),
+                        new Point(964, 1464),
+                        new Point(1308, 1464),
+                        new Point(1652, 1464),
+                        new Point(1996, 1464)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1794),
+                        new Point(620, 1794),
+                        new Point(964, 1794),
+                        new Point(1308, 1794),
+                        new Point(1652, 1794),
+                        new Point(1996, 1794)
+                    },
+                    new Point[]
+                    {
+                        new Point(1308, 2054),
+                        new Point(1652, 2054),
+                        new Point(1996, 2054)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2340),
+                        new Point(464, 2340),
+                        new Point(652, 2340),
+                        new Point(840, 2340),
+                        new Point(1028, 2340),
+                        new Point(1216, 2340),
+                        new Point(1404, 2340),
+                        new Point(1592, 2340),
+                        new Point(1780, 2340),
+                        new Point(1968, 2340),
+                        new Point(2156, 2340)
+                    },
+                }
+            };
+
+            var xml = new XDocument(new XDeclaration("1.0", "UTF-8", null));
+            xml.Add(new XElement("InputLocations",
+                pts.Select((page, i) => new XElement("Page", new XAttribute("Number", i.ToString()),
+                    page.Select(line => new XElement("Line",
+                        line.Select(point => new XElement("Point", 
+                            new XAttribute("X", point.X.ToString()), 
+                            new XAttribute("Y", point.Y.ToString())
+                        ))
+                    ))
+                )), 
+                new XElement("InputSize", 
+                    new XAttribute("Width", 48), 
+                    new XAttribute("Height", 48))
+            ));
+            xml.Save(@"..\..\inputLocations.xml");
         }
 
         //public Difference Match(Image<Bgr, byte> template, Image<Bgr, byte> scan)
