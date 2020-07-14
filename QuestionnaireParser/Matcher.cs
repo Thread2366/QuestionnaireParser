@@ -92,17 +92,46 @@ namespace QuestionnaireParser
             var viewer = new ImageViewer() { WindowState = FormWindowState.Maximized };
 
             var locality = new Rectangle(Point.Empty, localitySize);
+            var estimates = new List<double>();
             foreach (var origPt in originalPoints)
             {
                 locality.Location = new Point(origPt.X - localitySize.Width / 2, origPt.Y - localitySize.Height / 2);
                 image.ROI = locality;
                 var roi = image.Copy();
 
-                viewer.Image = roi;
-                viewer.ShowDialog();
+                //viewer.Image = roi;
+                //viewer.ShowDialog();
 
-                var b = new SimpleBlobDetector();
-                var points = b.Detect(roi);
+                var contours = new VectorOfVectorOfPoint();
+                var hierarchy = CvInvoke.FindContourTree(roi, contours, ChainApproxMethod.ChainApproxSimple);
+                var arr = contours.ToArrayOfArray();
+
+                var enclosed = Enumerable.Range(0, hierarchy.GetLength(0)).Where(i => hierarchy[i, 2] >= 0);
+                var squareContour = Enumerable
+                    .Range(0, hierarchy.GetLength(0))
+                    .GroupBy(i => hierarchy[i, 3])
+                    .Where(gr => gr.Key >= 0)
+                    .ToDictionary(gr =>
+                        gr.Key,
+                        gr => gr.Sum(i => CvInvoke.ContourArea(contours[i])))
+                    .Aggregate((p1, p2) => p1.Value > p2.Value ? p1 : p2);
+                //.Where(p => p.Value > 1000 && p.Value < 2500)
+
+                var rect = CvInvoke.MinAreaRect(contours[squareContour.Key]);
+
+                roi.ROI = rect.MinAreaRect();
+                estimates.Add(Enumerable.Range(0, roi.Width)
+                    .SelectMany(x => Enumerable.Range(0, roi.Height)
+                        .Select(y => roi[y, x].Intensity))
+                    .Average());
+
+                //var showImg = roi.Copy();
+
+                //var showImg = roi.Convert<Bgr, byte>();
+                //CvInvoke.Polylines(showImg, contours[squareContour.Key], true, new MCvScalar(0, 0, 255), 2);
+
+                //viewer.Image = showImg;
+                //viewer.ShowDialog();
             }
 
             throw new NotImplementedException();
