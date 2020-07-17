@@ -1,6 +1,4 @@
-﻿using AForge.Imaging;
-using AForge.Imaging.Filters;
-using Emgu.CV;
+﻿using Emgu.CV;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
@@ -11,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace QuestionnaireParser
 {
@@ -18,79 +17,162 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            //Test();
-            //return;
+            //LocateInputs();
 
-            Image<Bgr, byte>[] imgs = null;
-
-            var appdata = Environment.GetEnvironmentVariable("appdata");
-            var outputPath = Path.Combine(appdata, "QuestionnaireParser", "TemplateImages");
-            //var templatePath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf";
-            ////imgs = TemplatePdfImages.GetInstance(gsPath, templatePath, outputPath);
-
-            //var gsPath = @"C:\Program Files\gs\gs9.52\bin\gswin64c";
-            //GsUtils.PdfToJpeg(gsPath, @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf",
-            //    Path.Combine(appdata, "QuestionnaireParser", "Scans\\1"), "scan");
-
-            if (Directory.Exists(outputPath))
-                imgs = TemplatePdfImages.GetInstance(GetFilesArray(outputPath));
-            else throw new DirectoryNotFoundException($"Directory \"{outputPath}\" does not exist");
-
-            Image<Bgr, byte>[] pdfImgs = null;
-
-            var pdfDir = @"C:\Users\virus\AppData\Roaming\QuestionnaireParser\Scans\1";
-            if (Directory.Exists(pdfDir))
-                pdfImgs = new ScanPdfImages(GetFilesArray(pdfDir)).Images;
-            else throw new DirectoryNotFoundException($"Directory \"{pdfDir}\" does not exist");
-
-
-            new Matcher().Match(imgs[0], pdfImgs[0]);
-            //new Matcher().Match(imgs[1], pdfImgs[1]);
-
-            //pdfImgs[0] = pdfImgs[0].Rotate(diff.Angle, new Rgb(Color.White));
-            //pdfImgs[0].WarpAffine()
+            var parser = new Parser(@"inputLocations.xml");
+            parser.Parse(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf");
         }
 
-        //private static void Test()
-        //{
-        //    var template = new Bitmap(@"C:\Users\virus\AppData\Roaming\QuestionnaireParser\TemplateImages\template_1.jpg");
-        //    var scan = new Bitmap(@"C:\Users\virus\AppData\Roaming\QuestionnaireParser\Scans\1\scan_1.jpg");
 
-        //    var templateCv = new Image<Gray, byte>(template);
-        //    CvInvoke.Threshold(templateCv, templateCv, 150, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
-        //    var scanCv = new Image<Gray, byte>(scan);
-        //    CvInvoke.Threshold(scanCv, scanCv, 150, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
-
-        //    template = templateCv.ToBitmap();
-        //    scan = scanCv.ToBitmap();
-
-        //    //var grayscale = new Grayscale(1, 1, 1);
-        //    //template = grayscale.Apply(template);
-        //    //scan = grayscale.Apply(scan);
-
-        //    //template.Save(@"C:\Users\virus\Desktop\templateGray.jpg");
-        //    //scan.Save(@"C:\Users\virus\Desktop\scanGray.jpg");
-
-        //    //var threshold = new BradleyLocalThresholding();
-        //    //template = threshold.Apply(template);
-        //    //scan = threshold.Apply(scan);
-
-        //    template.Save(@"C:\Users\virus\Desktop\templateBin.jpg");
-        //    scan.Save(@"C:\Users\virus\Desktop\scanBin.jpg");
-
-        //    var skewChecker = new DocumentSkewChecker();
-        //    var angle = skewChecker.GetSkewAngle(scan);
-        //    var rotate = new RotateBilinear(-angle);
-        //    scan = rotate.Apply(scan);
-        //    scan.Save(@"C:\Users\virus\Desktop\scanBin.jpg");
-        //}
-
-        private static string[] GetFilesArray(string dirPath)
+        public static void LocateInputs()
         {
-            return new DirectoryInfo(dirPath)
-                .EnumerateFiles()
-                .Select(f => f.FullName)
-                .ToArray();
+            var pts = new Point[][][]
+            {
+                new Point[][]
+                {
+                    new Point[]
+                    {
+                        new Point(276, 1140),
+                        new Point(620, 1140),
+                        new Point(964, 1140),
+                        new Point(1308, 1140),
+                        new Point(1652, 1140),
+                        new Point(1996, 1140)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1470),
+                        new Point(620, 1470),
+                        new Point(964, 1470),
+                        new Point(1308, 1470),
+                        new Point(1652, 1470),
+                        new Point(1996, 1470)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1800),
+                        new Point(620, 1800),
+                        new Point(964, 1800),
+                        new Point(1308, 1800),
+                        new Point(1652, 1800),
+                        new Point(1996, 1800)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2134),
+                        new Point(620, 2134),
+                        new Point(964, 2134),
+                        new Point(1308, 2134),
+                        new Point(1652, 2134),
+                        new Point(1996, 2134)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2464),
+                        new Point(620, 2464),
+                        new Point(964, 2464),
+                        new Point(1308, 2464),
+                        new Point(1652, 2464),
+                        new Point(1996, 2464)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2794),
+                        new Point(964, 2794),
+                        new Point(1652, 2794)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 3126),
+                        new Point(964, 3126),
+                        new Point(1652, 3126)
+                    },
+                },
+                new Point[][]
+                {
+                    new Point[]
+                    {
+                        new Point(276, 400),
+                        new Point(620, 400),
+                        new Point(964, 400),
+                        new Point(1308, 400),
+                        new Point(1652, 400),
+                        new Point(1996, 400)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 732),
+                        new Point(620, 732),
+                        new Point(964, 732),
+                        new Point(1308, 732),
+                        new Point(1652, 732),
+                        new Point(1996, 732)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1064),
+                        new Point(620, 1064),
+                        new Point(964, 1064),
+                        new Point(1308, 1064),
+                        new Point(1652, 1064),
+                        new Point(1996, 1064)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1464),
+                        new Point(620, 1464),
+                        new Point(964, 1464),
+                        new Point(1308, 1464),
+                        new Point(1652, 1464),
+                        new Point(1996, 1464)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 1794),
+                        new Point(620, 1794),
+                        new Point(964, 1794),
+                        new Point(1308, 1794),
+                        new Point(1652, 1794),
+                        new Point(1996, 1794)
+                    },
+                    new Point[]
+                    {
+                        new Point(1308, 2054),
+                        new Point(1652, 2054),
+                        new Point(1996, 2054)
+                    },
+                    new Point[]
+                    {
+                        new Point(276, 2340),
+                        new Point(464, 2340),
+                        new Point(652, 2340),
+                        new Point(840, 2340),
+                        new Point(1028, 2340),
+                        new Point(1216, 2340),
+                        new Point(1404, 2340),
+                        new Point(1592, 2340),
+                        new Point(1780, 2340),
+                        new Point(1968, 2340),
+                        new Point(2156, 2340)
+                    },
+                }
+            };
+
+            var xml = new XDocument(new XDeclaration("1.0", "UTF-8", null));
+            xml.Add(new XElement("InputLocations",
+                pts.Select((page, i) => new XElement("Page", new XAttribute("Number", i.ToString()),
+                    page.Select(line => new XElement("Line",
+                        line.Select(point => new XElement("Point",
+                            new XAttribute("X", point.X.ToString()),
+                            new XAttribute("Y", point.Y.ToString())
+                        ))
+                    ))
+                )),
+                new XElement("InputSize",
+                    new XAttribute("Width", 48),
+                    new XAttribute("Height", 48))
+            ));
+            xml.Save(@"inputLocations.xml");
         }
     }
 }
