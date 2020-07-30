@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GsUtils.cs" />
+    <Compile Include="Locator.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -29,7 +29,7 @@ namespace QuestionnaireParser
 
         public void Parse(string scanPdfPath)
         {
-            var scanImgsPaths = GsUtils.PdfToJpeg(scanPdfPath, @"scans", "scan");
+            var scanImgsPaths = GsUtils.PdfToJpeg(scanPdfPath, "scans", "scan");
             var scanImgs = scanImgsPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
 
             var scansBin = new Image<Gray, byte>[scanImgs.Length];
@@ -75,8 +75,6 @@ namespace QuestionnaireParser
 
         public List<List<int>> FindChecks(Image<Gray, byte>[] images)
         {
-            var xml = XElement.Parse(File.ReadAllText(@"inputLocations.xml"));
-
             //var inpNode = xml.Element("InputSize");
             //var rectSize = new Size(int.Parse(inpNode.Attribute("Width").Value), int.Parse(inpNode.Attribute("Height").Value));
             //var rectPts = Enumerable.Range(0, rectSize.Width)
@@ -89,7 +87,7 @@ namespace QuestionnaireParser
             var locality = new Rectangle(Point.Empty, localitySize);
 
             var result = new List<List<int>>();
-            foreach (var page in xml.Elements("Page"))
+            foreach (var page in InputLocations.Elements("Page"))
             {
                 var image = images[int.Parse(page.Attribute("Number").Value)];
                 foreach (var line in page.Elements("Line"))

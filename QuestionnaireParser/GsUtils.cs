@@ -10,7 +10,7 @@ namespace QuestionnaireParser
 {
     static class GsUtils
     {
-        public static string GsPath { get => @"C:\Program Files\gs\gs9.52\bin\gswin64c.exe"; }
+        public const string GsPath = @"C:\Program Files\gs\gs9.52\bin\gswin64c.exe";
 
         public static string[] PdfToJpeg(string pdfPath, string outputPath, string name)
         {
@@ -22,6 +22,8 @@ namespace QuestionnaireParser
                 process.StartInfo.Arguments = $@"-dNOPAUSE -sDEVICE=jpeg -r300 -o ""{
                     Path.Combine(outputPath, $"{name}_%d.jpg")
                     }"" -sPAPERSIZE=a4 ""{pdfPath}""";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
                 process.Start();
                 process.WaitForExit();
                 gsExitCode = process.ExitCode;

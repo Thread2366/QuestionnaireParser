@@ -17,10 +17,11 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            //LocateInputs();
+            var locator = new Locator(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf");
+            locator.ShowDialog();
 
-            var parser = new Parser(@"inputLocations.xml");
-            parser.Parse(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf");
+            //var parser = new Parser(@"inputLocations.xml");
+            //parser.Parse(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf");
         }
 
 
