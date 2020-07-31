@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using QuestionnaireParser.Locator;
 
 namespace QuestionnaireParser
 {
@@ -17,11 +18,13 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            var locator = new Locator(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf");
+            var locator = new LocatorView(@"\\prominn\RHO\SYNC\iabdullaev\Desktop\Бланк обратной связи АЭХК (2).pdf");
             locator.ShowDialog();
 
+            //LocateInputs();
+
             //var parser = new Parser(@"inputLocations.xml");
-            //parser.Parse(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf");
+            //parser.Parse(@"\\prominn\RHO\SYNC\iabdullaev\Desktop\Анкета 2.pdf");
         }
 
 
