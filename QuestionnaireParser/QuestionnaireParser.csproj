@@ -59,7 +59,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Locator\ILocatorModel.cs" />
     <Compile Include="Locator\ILocatorView.cs" />
     <Compile Include="Locator\LocatorModel.cs" />
     <Compile Include="Locator\LocatorPresenter.cs" />

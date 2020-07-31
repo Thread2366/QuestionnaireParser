@@ -18,8 +18,9 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            var locator = new LocatorView(@"\\prominn\RHO\SYNC\iabdullaev\Desktop\Бланк обратной связи АЭХК (2).pdf");
-            locator.ShowDialog();
+            var view = new LocatorView();
+            var locator = new LocatorPresenter(view, @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf");
+            Application.Run(view);
 
             //LocateInputs();
 

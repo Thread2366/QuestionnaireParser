@@ -10,40 +10,52 @@ namespace QuestionnaireParser.Locator
     class LocatorPresenter
     {
         private ILocatorView View { get; }
-        private ILocatorModel Model { get; }
+        private LocatorModel Model { get; set; }
 
-        public LocatorPresenter(ILocatorView view, ILocatorModel model)
+        private int currentPage = 0;
+        private int currentLine = 0;
+
+        public LocatorPresenter(ILocatorView view, string templatePdfPath)
         {
             if (view == null) throw new ArgumentException("View cannot be null");
-            if (model == null) throw new ArgumentException("Model cannot be null");
+
+            View = view;
+            Model = new LocatorModel(templatePdfPath);
+
+            View.PrevPageClick += OnPrevPageClick;
+            View.NextPageClick += OnNextPageClick;
+            View.PrevLineClick += OnPrevLineClick;
+            View.NextLineClick += OnNextLineClick;
+
+            UpdatePage();
+            UpdateLine();
         }
 
-        public void PagingHandler(object sender, EventArgs e)
+        private void OnPrevPageClick(object sender, EventArgs e)
         {
-            var button = sender as Button;
-            if (button == null) return;
-
-            PagingButton buttonType;
-            if (button.Tag is PagingButton) buttonType = (PagingButton)button.Tag;
-            else return;
-
-            switch (buttonType)
-            {
-                case PagingButton.PrevPage:
-                    currentPage--;
-                    break;
-                case PagingButton.NextPage:
-                    currentPage++;
-                    break;
-                case PagingButton.PrevLine:
-                    currentLine--;
-                    break;
-                case PagingButton.NextLine:
-                    currentLine++;
-                    break;
-            }
-
-            UpdateForm();
+            if (currentPage > 0) currentPage--;
+            UpdatePage();
         }
+
+        private void OnNextPageClick(object sender, EventArgs e)
+        {
+            if (currentPage + 1 < Model.TemplateImgs.Length) currentPage++;
+            UpdatePage();
+        }
+
+        private void OnPrevLineClick(object sender, EventArgs e)
+        {
+            if (currentLine > 0) currentLine--;
+            UpdateLine();
+        }
+
+        private void OnNextLineClick(object sender, EventArgs e)
+        {
+            currentLine++;
+            UpdateLine();
+        }
+
+        private void UpdatePage() => View.UpdatePage(currentPage, Model.TemplateImgs.Length, Model.TemplateImgs[currentPage]);
+        private void UpdateLine() => View.UpdateLine(currentLine);
     }
 }

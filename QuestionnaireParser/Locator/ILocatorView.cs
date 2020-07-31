@@ -10,12 +10,9 @@ namespace QuestionnaireParser.Locator
 {
     interface ILocatorView
     {
-        bool PrevPageEnabled { get; set; }
-        bool NextPageEnabled { get; set; }
-        bool PrevLineEnabled { get; set; }
-        bool NextLineEnabled { get; set; }
+        IEnumerable<Point> Selection { get; set; }
 
-        void UpdatePage(int currentPage, Image image);
+        void UpdatePage(int currentPage, int pagesCount, Image image);
         void UpdateLine(int currentLine);
         void UpdateSelection(IEnumerable<Point> selection);
 

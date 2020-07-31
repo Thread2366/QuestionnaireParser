@@ -9,10 +9,10 @@ using System.Xml.Linq;
 
 namespace QuestionnaireParser.Locator
 {
-    class LocatorModel : ILocatorModel
+    class LocatorModel
     {
         private Dictionary<int, List<Point>>[] Locations { get; set; }
-        private Image[] TemplateImgs { get; }
+        public Image[] TemplateImgs { get; }
 
         public LocatorModel(string templatePdfPath)
         {
@@ -23,7 +23,6 @@ namespace QuestionnaireParser.Locator
             //Locations = new List<List<List<Point>>>() { new List<List<Point>>() };
             Locations = new Dictionary<int, List<Point>>[TemplateImgs.Length];
             for (int i = 0; i < Locations.Length; i++) Locations[i] = new Dictionary<int, List<Point>>();
-
         }
 
         public void AddPoint(Point point, int page, int line)

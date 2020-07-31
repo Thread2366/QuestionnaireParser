@@ -30,10 +30,7 @@ namespace QuestionnaireParser.Locator
         Pen selectionPen = new Pen(Color.FromArgb(128, Color.Red));
         Size selectionSize = new Size(50, 50);
 
-        public bool PrevPageEnabled { get => prevPage.Enabled; set => prevPage.Enabled = value; }
-        public bool NextPageEnabled { get => nextPage.Enabled; set => nextPage.Enabled = value; }
-        public bool PrevLineEnabled { get => prevLine.Enabled; set => prevLine.Enabled = value; }
-        public bool NextLineEnabled { get => nextLine.Enabled; set => nextLine.Enabled = value; }
+        public IEnumerable<Point> Selection { get; set; }
 
         public event EventHandler PrevPageClick;
         public event EventHandler NextPageClick;
@@ -41,22 +38,9 @@ namespace QuestionnaireParser.Locator
         public event EventHandler NextLineClick;
         public event MouseEventHandler Selecting;
 
-        public LocatorView(string templatePdfPath)
+        public LocatorView()
         {
             Initialize();
-        }
-
-        private void UpdateForm()
-        {
-            prevPage.Enabled = currentPage != 0;
-            nextPage.Enabled = currentPage < TemplateImgs.Length - 1;
-
-            prevLine.Enabled = currentLine != 0;
-
-            pageNum.Text = (currentPage + 1).ToString();
-            lineNum.Text = (currentLine + 1).ToString();
-
-            pictureBox.Image = TemplateImgs[currentPage];
         }
 
         private void Initialize()
@@ -69,10 +53,10 @@ namespace QuestionnaireParser.Locator
 
             pictureBox = new PictureBox() { SizeMode = PictureBoxSizeMode.AutoSize };
 
-            prevPage = new Button() { Dock = DockStyle.Fill, Text = "Предыдущая страница", Tag = PagingButton.PrevPage };
-            nextPage = new Button() { Dock = DockStyle.Fill, Text = "Следующая страница", Tag = PagingButton.NextPage };
-            prevLine = new Button() { Dock = DockStyle.Fill, Text = "Предыдущий вопрос", Tag = PagingButton.PrevLine };
-            nextLine = new Button() { Dock = DockStyle.Fill, Text = "Следующий вопрос", Tag = PagingButton.NextLine };
+            prevPage = new Button() { Dock = DockStyle.Fill, Text = "Предыдущая страница", Tag = PagingButton.PrevPage, Enabled = false };
+            nextPage = new Button() { Dock = DockStyle.Fill, Text = "Следующая страница", Tag = PagingButton.NextPage, Enabled = false };
+            prevLine = new Button() { Dock = DockStyle.Fill, Text = "Предыдущий вопрос", Tag = PagingButton.PrevLine, Enabled = false };
+            nextLine = new Button() { Dock = DockStyle.Fill, Text = "Следующий вопрос", Tag = PagingButton.NextLine, Enabled = false };
 
             pageNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
             lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
@@ -112,15 +96,18 @@ namespace QuestionnaireParser.Locator
 
             picturePanel.Controls.Add(pictureBox);
 
-            prevPage.Click += PrevPageClick;
-            nextPage.Click += NextPageClick;
-            prevLine.Click += PrevLineClick;
-            nextLine.Click += NextLineClick;
-            pictureBox.MouseClick += Selecting;
+            prevPage.Click += (sender, e) => PrevPageClick(sender, e);
+            nextPage.Click += (sender, e) => NextPageClick(sender, e);
+            prevLine.Click += (sender, e) => PrevLineClick(sender, e);
+            nextLine.Click += (sender, e) => NextLineClick(sender, e);
+            pictureBox.MouseClick += (sender, e) => Selecting(sender, e);
         }
 
-        public void UpdatePage(int currentPage, Image image)
+        public void UpdatePage(int currentPage, int pagesCount, Image image)
         {
+            prevPage.Enabled = currentPage != 0;
+            nextPage.Enabled = currentPage + 1 < pagesCount;
+
             pageNum.Text = currentPage.ToString();
             pictureBox.Image = image;
             UpdateSelection(Enumerable.Empty<Point>());
@@ -128,6 +115,9 @@ namespace QuestionnaireParser.Locator
 
         public void UpdateLine(int currentLine)
         {
+            prevLine.Enabled = currentLine != 0;
+            nextLine.Enabled = true;
+
             lineNum.Text = currentLine.ToString();
             UpdateSelection(Enumerable.Empty<Point>());
         }
