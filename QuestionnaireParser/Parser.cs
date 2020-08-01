@@ -75,14 +75,6 @@ namespace QuestionnaireParser
 
         public List<List<int>> FindChecks(Image<Gray, byte>[] images)
         {
-            //var inpNode = xml.Element("InputSize");
-            //var rectSize = new Size(int.Parse(inpNode.Attribute("Width").Value), int.Parse(inpNode.Attribute("Height").Value));
-            //var rectPts = Enumerable.Range(0, rectSize.Width)
-            //    .SelectMany(x =>
-            //        Enumerable.Range(0, rectSize.Height)
-            //        .Where(y => x == 0 || y == 0 || x == rectSize.Width - 1 || y == rectSize.Height - 1)
-            //        .Select(y => new Point(x, y)));
-
             var localitySize = new Size(200, 200);
             var locality = new Rectangle(Point.Empty, localitySize);
 

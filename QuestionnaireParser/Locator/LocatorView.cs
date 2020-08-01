@@ -21,22 +21,23 @@ namespace QuestionnaireParser.Locator
         Button nextLine;
         Button prevLine;
         Label lineNum;
-        Button done;
+        Button save;
 
         Panel picturePanel;
         TableLayoutPanel mainPanel;
         TableLayoutPanel controlPanel;
 
-        Pen selectionPen = new Pen(Color.FromArgb(128, Color.Red));
-        Size selectionSize = new Size(50, 50);
-
         public IEnumerable<Point> Selection { get; set; }
+
+        public int SelectionHitRadius => 25;
 
         public event EventHandler PrevPageClick;
         public event EventHandler NextPageClick;
         public event EventHandler PrevLineClick;
         public event EventHandler NextLineClick;
+        public event EventHandler SaveClick;
         public event MouseEventHandler Selecting;
+        public event EventHandler Scrolling;
 
         public LocatorView()
         {
@@ -61,7 +62,7 @@ namespace QuestionnaireParser.Locator
             pageNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
             lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
 
-            done = new Button() { Dock = DockStyle.Fill, Text = "Готово!" };
+            save = new Button() { Dock = DockStyle.Fill, Text = "Сохранить" };
 
             picturePanel = new Panel() { Dock = DockStyle.Fill, AutoScroll = true };
             controlPanel = new TableLayoutPanel() { Dock = DockStyle.Fill };
@@ -88,7 +89,7 @@ namespace QuestionnaireParser.Locator
             controlPanel.Controls.Add(pageNum, 1, 0);
             controlPanel.Controls.Add(nextPage, 2, 0);
             controlPanel.Controls.Add(new Panel(), 3, 0);
-            controlPanel.Controls.Add(done, 4, 0);
+            controlPanel.Controls.Add(save, 4, 0);
             controlPanel.Controls.Add(new Panel(), 5, 0);
             controlPanel.Controls.Add(prevLine, 6, 0);
             controlPanel.Controls.Add(lineNum, 7, 0);
@@ -100,7 +101,10 @@ namespace QuestionnaireParser.Locator
             nextPage.Click += (sender, e) => NextPageClick(sender, e);
             prevLine.Click += (sender, e) => PrevLineClick(sender, e);
             nextLine.Click += (sender, e) => NextLineClick(sender, e);
+            save.Click += (sender, e) => SaveClick(sender, e);
             pictureBox.MouseClick += (sender, e) => Selecting(sender, e);
+            picturePanel.Scroll += (sender, e) => Scrolling(sender, e);
+            picturePanel.MouseWheel += (sender, e) => Scrolling(sender, e);
         }
 
         public void UpdatePage(int currentPage, int pagesCount, Image image)
@@ -110,7 +114,6 @@ namespace QuestionnaireParser.Locator
 
             pageNum.Text = currentPage.ToString();
             pictureBox.Image = image;
-            UpdateSelection(Enumerable.Empty<Point>());
         }
 
         public void UpdateLine(int currentLine)
@@ -119,26 +122,34 @@ namespace QuestionnaireParser.Locator
             nextLine.Enabled = true;
 
             lineNum.Text = currentLine.ToString();
-            UpdateSelection(Enumerable.Empty<Point>());
         }
 
-        public void UpdateSelection(IEnumerable<Point> selection)
+        public void PaintSelection(IEnumerable<Point> selection)
         {
-            Graphics graphics;
-
-            if (selection.Any()) graphics = pictureBox.CreateGraphics();
-            else
+            picturePanel.Refresh();
+            using (var gr = pictureBox.CreateGraphics())
             {
-                pictureBox.Invalidate();
-                return;
+                gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                foreach (var pt in selection) PaintDotAround(gr, pt, Color.Red);
             }
+        }
 
-            foreach (var pt in selection)
+        private void PaintDotAround(Graphics graphics, Point point, Color color)
+        {
+            point.Offset(-SelectionHitRadius, -SelectionHitRadius);
+            var selectionRect = new Rectangle(point, new Size(SelectionHitRadius * 2, SelectionHitRadius * 2));
+            graphics.FillEllipse(new SolidBrush(Color.FromArgb(128, color)), selectionRect);
+        }
+
+        public string SaveDialog()
+        {
+            var saveDialog = new SaveFileDialog();
+            saveDialog.Filter = "XML (*.xml)|*.xml";
+            if (saveDialog.ShowDialog() == DialogResult.OK)
             {
-                var selectionRect = new Rectangle(pt, selectionSize);
-                graphics.DrawEllipse(selectionPen, selectionRect);
-                pictureBox.Invalidate(selectionRect);
+                return saveDialog.FileName;
             }
+            else return null;
         }
     }
 }

@@ -39,9 +39,18 @@ namespace QuestionnaireParser.Locator
             if (page > len) throw new ArgumentException($"Page {page} does not exist. There are only {len} pages in the template");
             if (!Locations[page].ContainsKey(line)) throw new ArgumentException($"Cannot delete from empty line {line}");
             if (!Locations[page][line].Contains(point)) throw new ArgumentException($"Point {point} does not exist");
+            Locations[page][line].Remove(point);
         }
 
-        public void SaveToXml()
+        public List<Point> GetPointsLine(int page, int line)
+        {
+            var len = TemplateImgs.Length;
+            if (page > len) throw new ArgumentException($"Page {page} does not exist. There are only {len} pages in the template");
+            if (!Locations[page].ContainsKey(line)) return new List<Point>();
+            return Locations[page][line];
+        }
+
+        public void SaveToXml(string savePath)
         {
             if (Locations == null) return;
             var xml = new XDocument(new XDeclaration("1.0", "UTF-8", null));
@@ -55,7 +64,7 @@ namespace QuestionnaireParser.Locator
                     ))
                 ))
             ));
-            xml.Save(@"inputLocations.xml");
+            xml.Save(savePath);
         }
     }
 }

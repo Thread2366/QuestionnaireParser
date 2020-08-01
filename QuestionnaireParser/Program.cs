@@ -16,6 +16,7 @@ namespace QuestionnaireParser
 {
     class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             var view = new LocatorView();
