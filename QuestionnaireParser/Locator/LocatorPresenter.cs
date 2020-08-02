@@ -34,6 +34,7 @@ namespace QuestionnaireParser.Locator
             View.Selecting += OnSelecting;
             View.Scrolling += OnScroll;
             View.SaveClick += OnSave;
+            View.HelpClick += OnHelp;
 
             UpdatePage();
             UpdateLine();
@@ -95,6 +96,7 @@ namespace QuestionnaireParser.Locator
 
         private void OnHelp(object sender, EventArgs e)
         {
+            View.ShowHelp();
         }
 
         private void UpdatePage()

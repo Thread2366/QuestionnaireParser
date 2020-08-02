@@ -17,6 +17,7 @@ namespace QuestionnaireParser
 {
     class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             //var view = new LocatorView();
@@ -26,7 +27,7 @@ namespace QuestionnaireParser
             //LocateInputs();
 
             Locate(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf");
-            Parse(@"C:\Users\virus\Desktop\inputLocations.xml", @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf", @"C:\Users\virus\Desktop\result.txt");
+            //Parse(@"C:\Users\virus\Desktop\inputLocations.xml", @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf", @"C:\Users\virus\Desktop\result.txt");
         }
 
         static void Parse(string inputLocationsPath, string scanPath, string outputPath)

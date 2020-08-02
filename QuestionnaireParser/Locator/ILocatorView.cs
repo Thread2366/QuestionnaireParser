@@ -17,6 +17,7 @@ namespace QuestionnaireParser.Locator
         void UpdateLine(int currentLine);
         void PaintSelection(IEnumerable<Point> selection);
         string SaveDialog();
+        void ShowHelp();
 
         event EventHandler PrevPageClick;
         event EventHandler NextPageClick;

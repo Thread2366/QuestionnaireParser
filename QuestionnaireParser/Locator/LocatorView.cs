@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using System.IO;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using QuestionnaireParser.Properties;
 
 namespace QuestionnaireParser.Locator
 {
@@ -67,6 +68,8 @@ namespace QuestionnaireParser.Locator
             save = new Button() { Dock = DockStyle.Fill, Text = "Сохранить" };
             help = new Button() { Dock = DockStyle.Fill, Text = "Справка" };
 
+            
+
             picturePanel = new Panel() { Dock = DockStyle.Fill, AutoScroll = true };
             controlPanel = new TableLayoutPanel() { Dock = DockStyle.Fill };
             mainPanel = new TableLayoutPanel() { Dock = DockStyle.Fill };
@@ -89,6 +92,9 @@ namespace QuestionnaireParser.Locator
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, labelWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+            
+
             controlPanel.Controls.Add(prevPage, 0, 0);
             controlPanel.Controls.Add(pageNum, 1, 0);
             controlPanel.Controls.Add(nextPage, 2, 0);
@@ -156,6 +162,17 @@ namespace QuestionnaireParser.Locator
                 return saveDialog.FileName;
             }
             else return null;
+        }
+
+        public void ShowHelp()
+        {
+            var helpText = $"Клик ЛКМ по изображению - отметить квадратик\r\n" +
+                $"Клик ПКМ по отмеченному квадратику - снять отметку\r\n" +
+                $"\r\n" +
+                $"Кнопками \"Предыдущий вопрос\" и \"Следующий вопрос\" можно указать номер вопроса и отметить квадратики, соответствующие этому вопросу\r\n" +
+                $"Кнопками \"Предыдущая страница\" и \"Следующая страница\" можно переключаться между страницами анкеты\r\n" +
+                $"Кнопкой \"Сохранить\" можно сохранить результаты разметки в формате xml";
+            MessageBox.Show(helpText, "Справка");
         }
     }
 }
