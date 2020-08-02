@@ -89,7 +89,12 @@ namespace QuestionnaireParser.Locator
         private void OnSave(object sender, EventArgs e)
         {
             var savePath = View.SaveDialog();
+            if (savePath == null) return;
             Model.SaveToXml(savePath);
+        }
+
+        private void OnHelp(object sender, EventArgs e)
+        {
         }
 
         private void UpdatePage()

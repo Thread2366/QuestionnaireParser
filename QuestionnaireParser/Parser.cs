@@ -27,7 +27,7 @@ namespace QuestionnaireParser
             InputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
         }
 
-        public void Parse(string scanPdfPath)
+        public void Parse(string scanPdfPath, string outputPath)
         {
             var scanImgsPaths = GsUtils.PdfToJpeg(scanPdfPath, "scans", "scan");
             var scanImgs = scanImgsPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
@@ -47,7 +47,7 @@ namespace QuestionnaireParser
             var checks = FindChecks(scansBin);
 
             var result = string.Join(Environment.NewLine, checks.Select((line, i) => $"{i + 1}: {string.Join(",", line)}"));
-            File.WriteAllText("result.txt", result);
+            File.WriteAllText(outputPath, result);
         }
 
         public Image<Gray, byte> Deskew(Image<Gray, byte> image)

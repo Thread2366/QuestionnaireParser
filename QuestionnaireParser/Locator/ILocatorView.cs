@@ -23,6 +23,7 @@ namespace QuestionnaireParser.Locator
         event EventHandler PrevLineClick;
         event EventHandler NextLineClick;
         event EventHandler SaveClick;
+        event EventHandler HelpClick;
         event MouseEventHandler Selecting;
         event EventHandler Scrolling;
     }

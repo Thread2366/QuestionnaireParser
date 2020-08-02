@@ -22,6 +22,7 @@ namespace QuestionnaireParser.Locator
         Button prevLine;
         Label lineNum;
         Button save;
+        Button help;
 
         Panel picturePanel;
         TableLayoutPanel mainPanel;
@@ -38,6 +39,7 @@ namespace QuestionnaireParser.Locator
         public event EventHandler SaveClick;
         public event MouseEventHandler Selecting;
         public event EventHandler Scrolling;
+        public event EventHandler HelpClick;
 
         public LocatorView()
         {
@@ -63,6 +65,7 @@ namespace QuestionnaireParser.Locator
             lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
 
             save = new Button() { Dock = DockStyle.Fill, Text = "Сохранить" };
+            help = new Button() { Dock = DockStyle.Fill, Text = "Справка" };
 
             picturePanel = new Panel() { Dock = DockStyle.Fill, AutoScroll = true };
             controlPanel = new TableLayoutPanel() { Dock = DockStyle.Fill };
@@ -80,6 +83,7 @@ namespace QuestionnaireParser.Locator
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
+            controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, labelWidth));
@@ -90,10 +94,11 @@ namespace QuestionnaireParser.Locator
             controlPanel.Controls.Add(nextPage, 2, 0);
             controlPanel.Controls.Add(new Panel(), 3, 0);
             controlPanel.Controls.Add(save, 4, 0);
-            controlPanel.Controls.Add(new Panel(), 5, 0);
-            controlPanel.Controls.Add(prevLine, 6, 0);
-            controlPanel.Controls.Add(lineNum, 7, 0);
-            controlPanel.Controls.Add(nextLine, 8, 0);
+            controlPanel.Controls.Add(help, 5, 0);
+            controlPanel.Controls.Add(new Panel(), 6, 0);
+            controlPanel.Controls.Add(prevLine, 7, 0);
+            controlPanel.Controls.Add(lineNum, 8, 0);
+            controlPanel.Controls.Add(nextLine, 9, 0);
 
             picturePanel.Controls.Add(pictureBox);
 
@@ -102,6 +107,7 @@ namespace QuestionnaireParser.Locator
             prevLine.Click += (sender, e) => PrevLineClick(sender, e);
             nextLine.Click += (sender, e) => NextLineClick(sender, e);
             save.Click += (sender, e) => SaveClick(sender, e);
+            help.Click += (sender, e) => HelpClick(sender, e);
             pictureBox.MouseClick += (sender, e) => Selecting(sender, e);
             picturePanel.Scroll += (sender, e) => Scrolling(sender, e);
             picturePanel.MouseWheel += (sender, e) => Scrolling(sender, e);
@@ -112,7 +118,7 @@ namespace QuestionnaireParser.Locator
             prevPage.Enabled = currentPage != 0;
             nextPage.Enabled = currentPage + 1 < pagesCount;
 
-            pageNum.Text = currentPage.ToString();
+            pageNum.Text = (currentPage + 1).ToString();
             pictureBox.Image = image;
         }
 
@@ -121,7 +127,7 @@ namespace QuestionnaireParser.Locator
             prevLine.Enabled = currentLine != 0;
             nextLine.Enabled = true;
 
-            lineNum.Text = currentLine.ToString();
+            lineNum.Text = (currentLine + 1).ToString();
         }
 
         public void PaintSelection(IEnumerable<Point> selection)

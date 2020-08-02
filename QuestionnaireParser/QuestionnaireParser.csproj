@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{337D33F2-07F1-445A-85DE-7D5859B45BB5}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>QuestionnaireParser</RootNamespace>
     <AssemblyName>QuestionnaireParser</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
