@@ -3,35 +3,28 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Emgu.CV.XFeatures2D;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using Emgu.CV.UI;
+using System.Windows.Forms;
+using Emgu.CV.Features2D;
 using Emgu.CV.CvEnum;
+using System.Collections.Specialized;
 using System.Xml.Linq;
-using System.Configuration;
-using System.Reflection;
 
 namespace QuestionnaireParser
 {
     class Parser
     {
-        const int KernelSize = 5;
-        const double BinThreshold = 200;
-        const double HoughRho = 1;
-        const double HoughThetaDegree = 1;
-        const int HoughThreshold = 100;
-        const double HoughMinLineLength = 200;
-        const double HoughMaxGap = 20;
-        const double SkewMaxDeviation = 0.5;
-        const int Locality = 150;
-        const int PolygonTestDistance = 10;
-        const double IntensityThreshold = 20;
-
         public XElement InputLocations { get; private set; }
 
-        public Parser(XElement inputLocations)
+        public Parser(string inputLocationsPath)
         {
-            InputLocations = inputLocations;
+            InputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
         }
 
         public void Parse(string scanPdfPath, string outputPath)
@@ -44,8 +37,8 @@ namespace QuestionnaireParser
             for (int i = 0; i < scansBin.Length; i++)
             {
                 var scan = scanImgs[i];
-                scan = scan.SmoothGaussian(KernelSize);
-                var scanBin = Binarize(scan, BinThreshold).Not();
+                scan = scan.SmoothGaussian(5);
+                var scanBin = Binarize(scan, 200).Not();
 
                 scanBin = Deskew(scanBin);
 
@@ -60,9 +53,7 @@ namespace QuestionnaireParser
         public Image<Gray, byte> Deskew(Image<Gray, byte> image)
         {
             Mat linesImg = new Mat(image.Size, DepthType.Cv8U, 1);
-            var lines = CvInvoke.HoughLinesP(image, HoughRho, 
-                Math.PI * HoughThetaDegree / 180, HoughThreshold,
-                HoughMinLineLength, HoughMaxGap);
+            var lines = CvInvoke.HoughLinesP(image, 1, Math.PI / 180, 100, 200, 20);
             for (int i = 0; i < lines.Length; i++)
             {
                 CvInvoke.Line(linesImg, lines[i].P1, lines[i].P2, new MCvScalar(255));
@@ -78,13 +69,13 @@ namespace QuestionnaireParser
                 arr[count / 2] :
                 (arr[count / 2] + arr[count / 2 + 1]) / 2;
 
-            var skewAngle = angles.Where(a => Math.Abs(a - median) < SkewMaxDeviation).Average();
+            var skewAngle = angles.Where(a => Math.Abs(a - median) < 0.5).Average();
             return image.Rotate(skewAngle, new Gray(0));
         }
 
         public List<List<int>> FindChecks(Image<Gray, byte>[] images)
         {
-            var localitySize = new Size(Locality, Locality);
+            var localitySize = new Size(200, 200);
             var locality = new Rectangle(Point.Empty, localitySize);
 
             var result = new List<List<int>>();
@@ -126,8 +117,8 @@ namespace QuestionnaireParser
                             .SelectMany(x =>
                                 Enumerable.Range(0, roi.Height)
                                 .Select(y => new Point(x, y))
-                                .Where(p => CvInvoke.PointPolygonTest(contour, p, true) > PolygonTestDistance));
-                        if (ptsInContour.Select(p => roi[p].Intensity).DefaultIfEmpty().Average() > IntensityThreshold)
+                                .Where(p => CvInvoke.PointPolygonTest(contour, p, true) > 10));
+                        if (ptsInContour.Select(p => roi[p].Intensity).DefaultIfEmpty().Average() > 20)
                             lineResult.Add(i + 1);
                     }
                     result.Add(lineResult);

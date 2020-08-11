@@ -40,7 +40,6 @@ namespace QuestionnaireParser.Locator
             if (!Locations[page].ContainsKey(line)) throw new ArgumentException($"Cannot delete from empty line {line}");
             if (!Locations[page][line].Contains(point)) throw new ArgumentException($"Point {point} does not exist");
             Locations[page][line].Remove(point);
-            if (Locations[page][line].Count == 0) Locations[page].Remove(line);
         }
 
         public List<Point> GetPointsLine(int page, int line)

@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using QuestionnaireParser.Locator;
 using System.Threading;
-using System.Configuration;
 
 namespace QuestionnaireParser
 {
@@ -26,16 +25,13 @@ namespace QuestionnaireParser
 
             //LocateInputs();
 
-            //Locate(@"\\prominn\RHO\SYNC\iabdullaev\Desktop\Бланк обратной связи АЭХК (2).pdf");
-            Parse(@"\\prominn\RHO\SYNC\iabdullaev\Desktop\inputLocations.xml",
-                @"\\prominn\RHO\SYNC\iabdullaev\Desktop\Анкета 1.pdf",
-                @"\\prominn\RHO\SYNC\iabdullaev\Desktop\result.txt");
+            Locate(@"C:\Users\virus\Desktop\Работа\Задача с анкетами\Бланк обратной связи.pdf");
+            //Parse(@"C:\Users\virus\Desktop\inputLocations.xml", @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Анкета.pdf", @"C:\Users\virus\Desktop\result.txt");
         }
 
         static void Parse(string inputLocationsPath, string scanPath, string outputPath)
         {
-            var inputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
-            var parser = new Parser(inputLocations);
+            var parser = new Parser(inputLocationsPath);
             parser.Parse(scanPath, outputPath);
         }
 

@@ -10,7 +10,6 @@ using System.IO;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using QuestionnaireParser.Properties;
-using System.Runtime.InteropServices;
 
 namespace QuestionnaireParser.Locator
 {
@@ -25,7 +24,6 @@ namespace QuestionnaireParser.Locator
         Label lineNum;
         Button save;
         Button help;
-        Label info;
 
         Panel picturePanel;
         TableLayoutPanel mainPanel;
@@ -67,10 +65,10 @@ namespace QuestionnaireParser.Locator
             pageNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
             lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
 
-            info = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 14, FontStyle.Bold) };
-
             save = new Button() { Dock = DockStyle.Fill, Text = "Сохранить" };
             help = new Button() { Dock = DockStyle.Fill, Text = "Справка" };
+
+            
 
             picturePanel = new Panel() { Dock = DockStyle.Fill, AutoScroll = true };
             controlPanel = new TableLayoutPanel() { Dock = DockStyle.Fill };
@@ -79,12 +77,9 @@ namespace QuestionnaireParser.Locator
             this.Controls.Add(mainPanel);
 
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
             mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, controlHeight));
             mainPanel.Controls.Add(picturePanel, 0, 0);
-            mainPanel.Controls.Add(info, 0, 1);
-            mainPanel.Controls.Add(controlPanel, 0, 2);
-            mainPanel.CellBorderStyle = TableLayoutPanelCellBorderStyle.OutsetDouble;
+            mainPanel.Controls.Add(controlPanel, 0, 1);
 
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, labelWidth));
@@ -97,6 +92,8 @@ namespace QuestionnaireParser.Locator
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, labelWidth));
             controlPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, buttonWidth));
             controlPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+
+            
 
             controlPanel.Controls.Add(prevPage, 0, 0);
             controlPanel.Controls.Add(pageNum, 1, 0);
@@ -120,8 +117,6 @@ namespace QuestionnaireParser.Locator
             pictureBox.MouseClick += (sender, e) => Selecting(sender, e);
             picturePanel.Scroll += (sender, e) => Scrolling(sender, e);
             picturePanel.MouseWheel += (sender, e) => Scrolling(sender, e);
-
-            pictureBox.MouseHover += (sender, e) => picturePanel.Focus();
         }
 
         public void UpdatePage(int currentPage, int pagesCount, Image image)
@@ -139,7 +134,6 @@ namespace QuestionnaireParser.Locator
             nextLine.Enabled = true;
 
             lineNum.Text = (currentLine + 1).ToString();
-            info.Text = $"Укажите квадратики, соответствующие вопросу №{currentLine + 1}";
         }
 
         public void PaintSelection(IEnumerable<Point> selection)
@@ -179,33 +173,6 @@ namespace QuestionnaireParser.Locator
                 $"Кнопками \"Предыдущая страница\" и \"Следующая страница\" можно переключаться между страницами анкеты\r\n" +
                 $"Кнопкой \"Сохранить\" можно сохранить результаты разметки в формате xml";
             MessageBox.Show(helpText, "Справка");
-        }
-
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            switch (keyData)
-            {
-                case Keys.Control | Keys.S:
-                    SaveClick(this, EventArgs.Empty);
-                    break;
-                case Keys.Left:
-                    PrevPageClick(this, EventArgs.Empty);
-                    break;
-                case Keys.Right:
-                    NextPageClick(this, EventArgs.Empty);
-                    break;
-                case Keys.Up:
-                    PrevLineClick(this, EventArgs.Empty);
-                    break;
-                case Keys.Down:
-                    NextLineClick(this, EventArgs.Empty);
-                    break;
-                case Keys.F1:
-                    HelpClick(this, EventArgs.Empty);
-                    break;
-            }
-            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
