@@ -167,11 +167,12 @@ namespace Locator
 
         public string SaveDialog()
         {
-            var saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "XML (*.xml)|*.xml";
+            var saveDialog = new FolderBrowserDialog();
+
+            saveDialog.SelectedPath = Directory.GetCurrentDirectory();
             if (saveDialog.ShowDialog() != DialogResult.OK) return null;
 
-            return saveDialog.FileName;
+            return saveDialog.SelectedPath;
         }
 
         public void ShowHelp()
@@ -198,6 +199,9 @@ namespace Locator
             {
                 case Keys.Control | Keys.S:
                     SaveClick(this, EventArgs.Empty);
+                    break;
+                case Keys.Control | Keys.O:
+                    OpenClick(this, EventArgs.Empty);
                     break;
                 case Keys.Left:
                     PrevPageClick(this, EventArgs.Empty);

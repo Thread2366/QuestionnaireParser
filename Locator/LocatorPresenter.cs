@@ -87,7 +87,7 @@ namespace Locator
         {
             var savePath = View.SaveDialog();
             if (savePath == null) return;
-            Model.SaveToXml(savePath);
+            Model.SaveToXml(Path.Combine(savePath, "inputLocations.xml"));
         }
 
         private void OnOpen(object sender, EventArgs e)

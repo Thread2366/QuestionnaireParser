@@ -9,17 +9,17 @@ using NUnit.Framework;
 namespace QuestionnaireParser
 {
     [TestFixture]
-    class ExcelTests
+    class VisualizerTests
     {
         string excelPath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Опрос 1\Результаты опроса.xlsx";
 
         [Test]
         public void ReleaseComTest()
         {
-            using (var excel = new Excel(excelPath))
+            using (var excel = new Visualizer(excelPath))
             {
-                excel.CopySheet(1, 2, "Вопрос 2");
-                var count = excel.SheetsCount;
+                //excel.CopySheet(1, 2, "Вопрос 2");
+                //var count = excel.SheetsCount;
             }
 
             Assert.Pass();
