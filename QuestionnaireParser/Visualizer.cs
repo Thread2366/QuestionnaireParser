@@ -86,6 +86,9 @@ namespace QuestionnaireParser
                 oApp.Quit();
                 oApp = null;
             }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }
