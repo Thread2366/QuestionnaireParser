@@ -10,6 +10,7 @@ using Emgu.CV.CvEnum;
 using System.Xml.Linq;
 using System.Configuration;
 using System.Reflection;
+using GsUtils;
 
 namespace QuestionnaireParser
 {
@@ -34,9 +35,13 @@ namespace QuestionnaireParser
             InputLocations = inputLocations;
         }
 
-        public void Parse(string scanPdfPath, string outputPath)
+        public List<List<int>> Parse(string scanPdfPath)
         {
-            var scanImgsPaths = GsUtils.PdfToJpeg(scanPdfPath, "scans", "scan");
+            var scanImgsPath = Path.Combine(
+                Environment.GetEnvironmentVariable("temp"), 
+                "QuestionnaireParser",
+                $"Scans_{Guid.NewGuid()}");
+            var scanImgsPaths = Gs.PdfToJpeg(scanPdfPath, scanImgsPath, "scan");
             var scanImgs = scanImgsPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
 
             var scansBin = new Image<Gray, byte>[scanImgs.Length];
@@ -53,8 +58,10 @@ namespace QuestionnaireParser
             }
             var checks = FindChecks(scansBin);
 
-            var result = string.Join(Environment.NewLine, checks.Select((line, i) => $"{i + 1}: {string.Join(",", line)}"));
-            File.WriteAllText(outputPath, result);
+            return checks;
+
+            //var result = string.Join(Environment.NewLine, checks.Select((line, i) => $"{i + 1}: {string.Join(",", line)}"));
+            //File.WriteAllText(outputPath, result);
         }
 
         public Image<Gray, byte> Deskew(Image<Gray, byte> image)

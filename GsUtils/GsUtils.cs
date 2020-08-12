@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuestionnaireParser
+namespace GsUtils
 {
-    static class GsUtils
+    public static class Gs
     {
         public const string GsPath = @"C:\Program Files\gs\gs9.52\bin\gswin64c.exe";
 

@@ -6,18 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using GsUtils;
 
-namespace QuestionnaireParser.Locator
+namespace Locator
 {
-    class LocatorModel
+    class LocatorModel : IDisposable
     {
         private Dictionary<int, List<Point>>[] Locations { get; set; }
         public Image[] TemplateImgs { get; }
+        public string TemplatePdfPath { get; }
 
         public LocatorModel(string templatePdfPath)
         {
-            var templateImgsPath = Path.Combine(Environment.GetEnvironmentVariable("temp"), "QuestionnaireTemplates");
-            var templates = GsUtils.PdfToJpeg(templatePdfPath, templateImgsPath, "template");
+            TemplatePdfPath = templatePdfPath;
+            var templateImgsPath = Path.Combine(
+                Environment.GetEnvironmentVariable("temp"), 
+                "QuestionnaireParser",
+                "Templates");
+            var templates = Gs.PdfToJpeg(TemplatePdfPath, templateImgsPath, "template");
             TemplateImgs = templates.Select(path => Image.FromFile(path)).ToArray();
             if (TemplateImgs.Length == 0) throw new Exception("Invalid template pdf file");
             //Locations = new List<List<List<Point>>>() { new List<List<Point>>() };
@@ -40,6 +46,7 @@ namespace QuestionnaireParser.Locator
             if (!Locations[page].ContainsKey(line)) throw new ArgumentException($"Cannot delete from empty line {line}");
             if (!Locations[page][line].Contains(point)) throw new ArgumentException($"Point {point} does not exist");
             Locations[page][line].Remove(point);
+            if (Locations[page][line].Count == 0) Locations[page].Remove(line);
         }
 
         public List<Point> GetPointsLine(int page, int line)
@@ -65,6 +72,14 @@ namespace QuestionnaireParser.Locator
                 ))
             ));
             xml.Save(savePath);
+        }
+
+        public void Dispose()
+        {
+            foreach (var img in TemplateImgs)
+            {
+                img.Dispose();
+            }
         }
     }
 }

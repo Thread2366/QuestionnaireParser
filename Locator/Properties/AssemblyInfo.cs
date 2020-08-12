@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("QuestionnaireParser")]
+[assembly: AssemblyTitle("Locator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("QuestionnaireParser")]
+[assembly: AssemblyProduct("Locator")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("337d33f2-07f1-445a-85de-7d5859b45bb5")]
+[assembly: Guid("cd61a868-451e-4c3b-aaf9-8c4ac88797ce")]
 
 // Version information for an assembly consists of the following four values:
 //
