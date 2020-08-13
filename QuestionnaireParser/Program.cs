@@ -62,16 +62,17 @@ namespace QuestionnaireParser
                 var answers = Directory.EnumerateFiles(dir, "*.pdf")
                     .AsParallel()
                     .Select(scanPdf => new Parser(inputLocations).Parse(scanPdf))
-                    .ToList()
+                    .ToArray()
                     .SelectMany(qe => qe.SelectMany((qn, i) => qn.Select(ans => new { Answer = ans, Question = i })))
                     .GroupBy(x => x.Question)
                     .OrderBy(x => x.Key)
                     .Select(grp => grp
                         .GroupBy(x => x.Answer)
                         .OrderBy(x => x.Key)
-                        .ToDictionary(x => x.Key, x => x.Count()));
+                        .ToDictionary(x => x.Key, x => x.Count()))
+                    .ToArray();
 
-                using (var visualizer = new Visualizer(excelPath))
+                using (var visualizer = new Visualizer(excelPath, inputLocations))
                 {
                     visualizer.Visualize(answers);
                 }

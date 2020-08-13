@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NUnit.Framework;
 
 namespace QuestionnaireParser
@@ -12,14 +14,24 @@ namespace QuestionnaireParser
     class VisualizerTests
     {
         string excelPath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Опрос 1\Результаты опроса.xlsx";
+        string inputLocationsPath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Опрос 1\inputLocations.xml";
+
+        Dictionary<int, int>[] answers = new Dictionary<int, int>[]
+        {
+            new Dictionary<int, int>()
+            {
+                { 1, 1 },
+                { 2, 1 },
+                { 3, 1 }
+            }
+        };
 
         [Test]
-        public void ReleaseComTest()
+        public void VisualizeTest()
         {
-            using (var excel = new Visualizer(excelPath))
+            using (var visualizer = new Visualizer(excelPath, XElement.Parse(File.ReadAllText(inputLocationsPath))))
             {
-                //excel.CopySheet(1, 2, "Вопрос 2");
-                //var count = excel.SheetsCount;
+                visualizer.Visualize(answers);
             }
 
             Assert.Pass();
