@@ -27,16 +27,20 @@ namespace QuestionnaireParser
 
             Parallel.ForEach(Directory.EnumerateDirectories(path)
                 .Where(dir => Path.GetFileName(dir) != "bin"), 
-                dir =>
+            dir =>
             {
                 var excelPath = Path.Combine(dir, $"{Path.GetFileName(dir)} - результаты.xlsx");
                 var inputLocationsPath = Path.Combine(dir, "inputLocations.xml");
                 var inputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
+                var processedPath = Path.Combine(dir, "Обработано");
 
+                if (!Directory.Exists(processedPath))
+                    Directory.CreateDirectory(processedPath);
                 if (!File.Exists(excelPath))
                     File.Copy(excelTemplate, excelPath);
 
-                var answers = Directory.EnumerateFiles(dir, "*.pdf")
+                var questionnaires = Directory.EnumerateFiles(dir, "*.pdf");
+                var answers = questionnaires
                     .AsParallel()
                     .Select(scanPdf => new Parser(inputLocations).Parse(scanPdf))
                     .ToArray()
@@ -52,6 +56,13 @@ namespace QuestionnaireParser
                 using (var visualizer = new Visualizer(excelPath, inputLocations))
                 {
                     visualizer.Visualize(answers);
+                }
+
+                foreach (var file in questionnaires)
+                {
+                    var destPath = Path.Combine(processedPath, Path.GetFileName(file));
+                    if (File.Exists(destPath)) File.Delete(destPath);
+                    File.Move(file, destPath);
                 }
             });
         }

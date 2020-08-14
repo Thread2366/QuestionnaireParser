@@ -10,10 +10,14 @@ namespace GsUtils
 {
     public static class Gs
     {
-        public const string GsPath = @"C:\Program Files\gs\gs9.52\bin\gswin64c.exe";
+        public const string GsPath = @"C:\Program Files\gs";
 
         public static string[] PdfToJpeg(string pdfPath, string outputPath, string name)
         {
+            var gsExePath = Path.Combine(
+                Directory.EnumerateDirectories(GsPath, "gs*").OrderByDescending(x => x).First(), 
+                "bin\\gswin64c.exe");
+
             Directory.CreateDirectory(outputPath);
             if (Path.GetExtension(pdfPath) != ".pdf") throw new ArgumentException($"Wrong file format: {pdfPath}. File extension must be .pdf");
             int gsExitCode;
@@ -21,7 +25,7 @@ namespace GsUtils
             string error;
             using (var process = new Process())
             {
-                process.StartInfo.FileName = GsPath;
+                process.StartInfo.FileName = gsExePath;
                 process.StartInfo.Arguments = $@"-dNOPAUSE -sDEVICE=jpeg -r250 -o ""{
                     Path.Combine(outputPath, $"{name}_%d.jpg")
                     }"" -sPAPERSIZE=a4 ""{pdfPath}""";
