@@ -36,19 +36,5 @@ namespace QuestionnaireParser
 
             Assert.Pass();
         }
-
-        [Test]
-        public void ChartTest()
-        {
-            Action func = () =>
-            {
-                using (var visualizer = new Visualizer(excelPath, XElement.Parse(File.ReadAllText(inputLocationsPath))))
-                {
-                    visualizer.ChartTest();
-                }
-            };
-
-            Assert.DoesNotThrow(new TestDelegate(func));
-        }
     }
 }

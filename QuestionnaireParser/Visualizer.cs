@@ -31,16 +31,6 @@ namespace QuestionnaireParser
             oWb = oApp.Workbooks.Open(ExcelPath);
         }
 
-        public void ChartTest()
-        {
-            Worksheet sheet = oWb.Sheets["Шаблон"];
-
-            ChartObject chartObj = sheet.ChartObjects(1);
-            chartObj.Chart.ChartWizard(sheet.Range["P30:R32"],
-                CategoryLabels: 1,
-                SeriesLabels: 1);
-        }
-
         public void Visualize(Dictionary<int, int>[] answers)
         {
             if (oWb.ActiveSheet.Name == "Шаблон") Initialize();
