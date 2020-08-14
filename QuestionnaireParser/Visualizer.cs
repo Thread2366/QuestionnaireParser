@@ -26,7 +26,7 @@ namespace QuestionnaireParser
             InputLocations = inputLocations;
 
             oApp = new Application();
-            oApp.Visible = true;
+            oApp.Visible = false;
             oApp.DisplayAlerts = false;
             oWb = oApp.Workbooks.Open(ExcelPath);
         }

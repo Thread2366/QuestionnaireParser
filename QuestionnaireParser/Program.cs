@@ -21,13 +21,15 @@ namespace QuestionnaireParser
         static void Main(string[] args)
         {
             //var path = @"\\prominn\RHO\SYNC\iabdullaev\Desktop\Задача с анкетами";
-            var path = Directory.GetCurrentDirectory();
+            var path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
 
             var excelTemplate = Path.Combine(path, "Шаблон.xlsx");
 
-            Parallel.ForEach(Directory.EnumerateDirectories(path), dir =>
+            Parallel.ForEach(Directory.EnumerateDirectories(path)
+                .Where(dir => Path.GetFileName(dir) != "bin"), 
+                dir =>
             {
-                var excelPath = Path.Combine(dir, $"Результаты ({Path.GetFileName(dir)}).xlsx");
+                var excelPath = Path.Combine(dir, $"{Path.GetFileName(dir)} - результаты.xlsx");
                 var inputLocationsPath = Path.Combine(dir, "inputLocations.xml");
                 var inputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
 

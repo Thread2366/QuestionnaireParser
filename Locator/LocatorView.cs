@@ -169,7 +169,7 @@ namespace Locator
         {
             var saveDialog = new FolderBrowserDialog();
 
-            saveDialog.SelectedPath = Directory.GetCurrentDirectory();
+            saveDialog.SelectedPath = Path.GetDirectoryName(Directory.GetCurrentDirectory());
             if (saveDialog.ShowDialog() != DialogResult.OK) return null;
 
             return saveDialog.SelectedPath;
