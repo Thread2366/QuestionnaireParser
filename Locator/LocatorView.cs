@@ -63,8 +63,8 @@ namespace Locator
             prevLine = new Button() { Dock = DockStyle.Fill, Text = "Предыдущий вопрос", Enabled = false };
             nextLine = new Button() { Dock = DockStyle.Fill, Text = "Следующий вопрос", Enabled = false };
 
-            pageNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
-            lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 20) };
+            pageNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 18) };
+            lineNum = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 18) };
 
             info = new Label() { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Arial", 14, FontStyle.Bold) };
 

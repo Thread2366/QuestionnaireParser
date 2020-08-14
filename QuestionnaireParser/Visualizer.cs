@@ -31,6 +31,16 @@ namespace QuestionnaireParser
             oWb = oApp.Workbooks.Open(ExcelPath);
         }
 
+        public void ChartTest()
+        {
+            Worksheet sheet = oWb.Sheets["Шаблон"];
+
+            ChartObject chartObj = sheet.ChartObjects(1);
+            chartObj.Chart.ChartWizard(sheet.Range["P30:R32"],
+                CategoryLabels: 1,
+                SeriesLabels: 1);
+        }
+
         public void Visualize(Dictionary<int, int>[] answers)
         {
             if (oWb.ActiveSheet.Name == "Шаблон") Initialize();
@@ -67,16 +77,34 @@ namespace QuestionnaireParser
                     dateCell.Offset[ColumnOffset: pair.Key].Value = pair.Value;
                 }
 
-                if (dateCell.Row - 1 != percentsCell.Row)
+                if (dateCell.Row - 1 == percentsCell.Row) continue;
+
+                Range colFrom = sheet.Cells[dateCell.Row - 1, percentsCell.Column];
+                Range colTo = colFrom.End[XlDirection.xlToRight];
+                var rowFrom = sheet.Range[colFrom, colTo];
+                var rowTo = rowFrom.Offset[RowOffset: 1];
+                rowFrom.AutoFill(sheet.Range[rowFrom, rowTo]);
+
+                Range chartSource;
+                var headers = sheet.Range[percentsCell, percentsCell.End[XlDirection.xlToRight]];
+                if (rowTo.Row - percentsCell.Row > 7)
                 {
-                    Range cell = sheet.Cells[dateCell.Row - 1, percentsCell.Column];
-                    Range right = cell.End[XlDirection.xlToRight];
-                    var row = sheet.Range[cell, right];
-                    row.AutoFill(sheet.Range[cell, right.Offset[RowOffset: 1]]);
+                    rowFrom = rowTo.Offset[RowOffset: -6];
+                    var data = sheet.Range[rowFrom, rowTo];
+                    chartSource = oApp.Union(headers, data);
                 }
+                else
+                {
+                    chartSource = sheet.Range[headers, rowTo];
+                }
+                ChartObject chartObj = sheet.ChartObjects(1);
+                chartObj.Chart.ChartWizard(
+                    Source: chartSource,
+                    CategoryLabels: 1,
+                    SeriesLabels: 1);
             }
 
-            throw new NotImplementedException();
+            oWb.Save();
         }
 
         private void Initialize()
@@ -107,14 +135,21 @@ namespace QuestionnaireParser
                     answersCell.Offset[ColumnOffset: i].Value = $"Ответ {i}";
                 }
 
-                if (answersCount > 1)
-                {
-                    var headerSource = percentsCell.Offset[ColumnOffset: 1];
-                    var percentSource = headerSource.Offset[RowOffset: 1];
-                    var formulaSource = sheet.Range[headerSource, percentSource];
-                    var formulaDest = sheet.Range[formulaSource, formulaSource.Offset[ColumnOffset: answersCount - 1]];
-                    formulaSource.AutoFill(formulaDest);
-                }
+                if (answersCount <= 1) continue;
+
+                var headerFrom = percentsCell.Offset[ColumnOffset: 1];
+                var percentsFrom = headerFrom.Offset[RowOffset: 1];
+                var formulaFrom = sheet.Range[headerFrom, percentsFrom];
+                var formulaTo = sheet.Range[formulaFrom, formulaFrom.Offset[ColumnOffset: answersCount - 1]];
+                formulaFrom.AutoFill(formulaTo);
+
+                var chartSourceFrom = formulaFrom.Offset[ColumnOffset: -1];
+                var chartSourceTo = chartSourceFrom.Offset[ColumnOffset: answersCount];
+                ChartObject chartObj = sheet.ChartObjects(1);
+                chartObj.Chart.ChartWizard(
+                    Source: sheet.Range[chartSourceFrom, chartSourceTo],
+                    CategoryLabels: 1,
+                    SeriesLabels: 1);
             }
 
             template.Delete();

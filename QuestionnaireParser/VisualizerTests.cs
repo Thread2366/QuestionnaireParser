@@ -13,8 +13,8 @@ namespace QuestionnaireParser
     [TestFixture]
     class VisualizerTests
     {
-        string excelPath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Опрос 1\Результаты опроса.xlsx";
-        string inputLocationsPath = @"C:\Users\virus\Desktop\Работа\Задача с анкетами\Опрос 1\inputLocations.xml";
+        string excelPath = @"\\prominn\RHO\SYNC\iabdullaev\Desktop\Задача с анкетами\Опрос 1\Результаты опроса.xlsx";
+        string inputLocationsPath = @"\\prominn\RHO\SYNC\iabdullaev\Desktop\Задача с анкетами\Опрос 1\inputLocations.xml";
 
         Dictionary<int, int>[] answers = new Dictionary<int, int>[]
         {
@@ -35,6 +35,20 @@ namespace QuestionnaireParser
             }
 
             Assert.Pass();
+        }
+
+        [Test]
+        public void ChartTest()
+        {
+            Action func = () =>
+            {
+                using (var visualizer = new Visualizer(excelPath, XElement.Parse(File.ReadAllText(inputLocationsPath))))
+                {
+                    visualizer.ChartTest();
+                }
+            };
+
+            Assert.DoesNotThrow(new TestDelegate(func));
         }
     }
 }
