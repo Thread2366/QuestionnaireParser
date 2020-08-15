@@ -20,8 +20,8 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            //var path = @"\\prominn\RHO\SYNC\iabdullaev\Desktop\Задача с анкетами";
-            var path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
+            var path = @"C:\Users\virus\Desktop\Работа\Задача с анкетами";
+            //var path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
 
             var excelTemplate = Path.Combine(path, "Шаблон.xlsx");
 
@@ -42,7 +42,13 @@ namespace QuestionnaireParser
                 var questionnaires = Directory.EnumerateFiles(dir, "*.pdf");
                 var answers = questionnaires
                     .AsParallel()
-                    .Select(scanPdf => new Parser(inputLocations).Parse(scanPdf))
+                    .Select(scanPdf =>
+                    {
+                        using (var parser = new Parser(inputLocations, scanPdf))
+                        {
+                            return parser.Parse();
+                        }
+                    })
                     .ToArray()
                     .SelectMany(qe => qe.SelectMany((qn, i) => qn.Select(ans => new { Answer = ans, Question = i })))
                     .GroupBy(x => x.Question)

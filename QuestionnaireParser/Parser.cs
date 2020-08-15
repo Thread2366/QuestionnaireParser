@@ -14,7 +14,7 @@ using GsUtils;
 
 namespace QuestionnaireParser
 {
-    class Parser
+    class Parser : IDisposable
     {
         const int KernelSize = 5;
         const double BinThreshold = 200;
@@ -28,22 +28,24 @@ namespace QuestionnaireParser
         const int PolygonTestDistance = 10;
         const double IntensityThreshold = 20;
 
-        public XElement InputLocations { get; private set; }
+        public XElement InputLocations { get; }
+        public string ScansFolder { get; }
+        public string[] ScansPaths { get; }
 
-        public Parser(XElement inputLocations)
+        public Parser(XElement inputLocations, string scanPdfPath)
         {
             InputLocations = inputLocations;
-        }
 
-        public List<List<int>> Parse(string scanPdfPath)
-        {
-            var scanImgsPath = Path.Combine(
-                Environment.GetEnvironmentVariable("temp"), 
+            ScansFolder = Path.Combine(
+                Environment.GetEnvironmentVariable("temp"),
                 "QuestionnaireParser",
                 $"Scans_{Guid.NewGuid()}");
-            var scanImgsPaths = Gs.PdfToJpeg(scanPdfPath, scanImgsPath, "scan");
-            var scanImgs = scanImgsPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
+            ScansPaths = Gs.PdfToJpeg(scanPdfPath, ScansFolder, "scan");
+        }
 
+        public List<List<int>> Parse()
+        {
+            var scanImgs = ScansPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
             var scansBin = new Image<Gray, byte>[scanImgs.Length];
 
             for (int i = 0; i < scansBin.Length; i++)
@@ -149,6 +151,11 @@ namespace QuestionnaireParser
             var binary = new Image<Gray, byte>(gray.Width, gray.Height, new Gray(0));
             CvInvoke.Threshold(gray, binary, threshold, 255, ThresholdType.Binary);
             return binary;
+        }
+
+        public void Dispose()
+        {
+            Directory.Delete(ScansFolder, true);
         }
     }
 }
