@@ -1,67 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using Emgu.CV.XFeatures2D;
-using Emgu.CV;
-using Emgu.CV.Structure;
-using Emgu.CV.Util;
-using Emgu.CV.UI;
-using System.Windows.Forms;
-using Emgu.CV.Features2D;
-using Emgu.CV.CvEnum;
-using System.Collections.Specialized;
+using OpenCvSharp;
 using System.Xml.Linq;
+using System.Configuration;
+using System.Reflection;
+using System.Threading;
+using Utils;
 
 namespace QuestionnaireParser
 {
     class Parser
     {
-        public XElement InputLocations { get; private set; }
+        const int KernelSize = 5;
+        const double GaussianSigma = 2;
+        const double BinThreshold = 200;
+        const double HoughRho = 1;
+        const double HoughThetaDegree = 1;
+        const int HoughThreshold = 100;
+        const double HoughMinLineLength = 200;
+        const double HoughMaxGap = 20;
+        const double SkewMaxDeviation = 0.5;
+        const int Locality = 150;
+        const int PolygonTestDistance = 10;
+        const double IntensityThreshold = 20;
 
-        public Parser(string inputLocationsPath)
+        private XElement InputLocations { get; }
+
+        public Parser(XElement inputLocations)
         {
-            InputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
+            InputLocations = new XElement(inputLocations);
         }
 
-        public void Parse(string scanPdfPath, string outputPath)
+        public List<List<int>> Parse(string scanPdfPath)
         {
-            var scanImgsPaths = GsUtils.PdfToJpeg(scanPdfPath, "scans", "scan");
-            var scanImgs = scanImgsPaths.Select(path => new Image<Bgr, byte>(path)).ToArray();
-
-            var scansBin = new Image<Gray, byte>[scanImgs.Length];
+            Mat[] scansBin;
+            using (var scansPath = Gs.PdfToJpeg(scanPdfPath, $"Scans_{Guid.NewGuid()}", "scan"))
+            {
+                scansBin = scansPath.Files
+                    .Select(path => Cv2.ImRead(path, ImreadModes.Grayscale))
+                    .Select(mat => mat.GaussianBlur(
+                        new Size(KernelSize, KernelSize),
+                        GaussianSigma,
+                        GaussianSigma))
+                    .Select(mat => mat.Threshold(BinThreshold, 255, ThresholdTypes.Binary))
+                    .ToArray();
+            }
 
             for (int i = 0; i < scansBin.Length; i++)
             {
-                var scan = scanImgs[i];
-                scan = scan.SmoothGaussian(5);
-                var scanBin = Binarize(scan, 200).Not();
+                var scan = scansBin[i];
+                Cv2.BitwiseNot(scan, scan);
 
-                scanBin = Deskew(scanBin);
-
-                scansBin[i] = scanBin;
+                Deskew(scan);
             }
             var checks = FindChecks(scansBin);
 
-            var result = string.Join(Environment.NewLine, checks.Select((line, i) => $"{i + 1}: {string.Join(",", line)}"));
-            File.WriteAllText(outputPath, result);
+            return checks;
         }
 
-        public Image<Gray, byte> Deskew(Image<Gray, byte> image)
+        public void Deskew(Mat image)
         {
-            Mat linesImg = new Mat(image.Size, DepthType.Cv8U, 1);
-            var lines = CvInvoke.HoughLinesP(image, 1, Math.PI / 180, 100, 200, 20);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                CvInvoke.Line(linesImg, lines[i].P1, lines[i].P2, new MCvScalar(255));
-            }
-            var horizontal = new LineSegment2D(Point.Empty, new Point(image.Width, 0));
+            var lines = Cv2.HoughLinesP(image, HoughRho,
+                Math.PI * HoughThetaDegree / 180, HoughThreshold,
+                HoughMinLineLength, HoughMaxGap);
             var angles = lines
-                .Select(l => l.GetExteriorAngleDegree(horizontal))
-                .Select(a => a > 45 ? a - 90 : a);
+                .Select(l => Math.Atan((double)(l.P2.Y - l.P1.Y)/(l.P2.X - l.P1.X)) * 180 / Math.PI);
+
 
             var count = angles.Count();
             var arr = angles.OrderBy(a => a).ToArray();
@@ -69,14 +75,14 @@ namespace QuestionnaireParser
                 arr[count / 2] :
                 (arr[count / 2] + arr[count / 2 + 1]) / 2;
 
-            var skewAngle = angles.Where(a => Math.Abs(a - median) < 0.5).Average();
-            return image.Rotate(skewAngle, new Gray(0));
+            var skewAngle = angles.Where(a => Math.Abs(a - median) < SkewMaxDeviation).Average();
+            Rotate(image, skewAngle);
         }
 
-        public List<List<int>> FindChecks(Image<Gray, byte>[] images)
+        public List<List<int>> FindChecks(Mat[] images)
         {
-            var localitySize = new Size(200, 200);
-            var locality = new Rectangle(Point.Empty, localitySize);
+            var localitySize = new Size(Locality, Locality);
+            var locality = new Rect(new Point(0, 0), localitySize);
 
             var result = new List<List<int>>();
             foreach (var page in InputLocations.Elements("Page"))
@@ -92,33 +98,7 @@ namespace QuestionnaireParser
                         .ToArray();
                     for (int i = 0; i < points.Length; i++)
                     {
-                        var point = points[i];
-                        locality.Location = new Point(point.X - localitySize.Width / 2, point.Y - localitySize.Height / 2);
-                        image.ROI = locality;
-                        var roi = image.Copy();
-
-                        var contours = new VectorOfVectorOfPoint();
-                        var hierarchy = CvInvoke.FindContourTree(roi, contours, ChainApproxMethod.ChainApproxSimple);
-                        var arr = contours.ToArrayOfArray();
-
-                        var enclosed = Enumerable.Range(0, hierarchy.GetLength(0))
-                            .Where(idx => hierarchy[idx, 2] >= 0);
-                        var contourPair = Enumerable
-                            .Range(0, hierarchy.GetLength(0))
-                            .GroupBy(idx => hierarchy[idx, 3])
-                            .Where(gr => gr.Key >= 0)
-                            .ToDictionary(gr =>
-                                gr.Key,
-                                gr => gr.Sum(idx => CvInvoke.ContourArea(contours[idx])))
-                            .Aggregate((p1, p2) => p1.Value > p2.Value ? p1 : p2);
-                        var contour = contours[contourPair.Key];
-
-                        var ptsInContour = Enumerable.Range(0, roi.Width)
-                            .SelectMany(x =>
-                                Enumerable.Range(0, roi.Height)
-                                .Select(y => new Point(x, y))
-                                .Where(p => CvInvoke.PointPolygonTest(contour, p, true) > 10));
-                        if (ptsInContour.Select(p => roi[p].Intensity).DefaultIfEmpty().Average() > 20)
+                        if (IsChecked(image, points[i]))
                             lineResult.Add(i + 1);
                     }
                     result.Add(lineResult);
@@ -127,12 +107,63 @@ namespace QuestionnaireParser
             return result;
         }
 
-        private static Image<Gray, byte> Binarize(Image<Bgr, byte> img, double threshold)
+        public bool IsChecked(Mat image, Point point)
         {
-            var gray = img.Convert<Gray, byte>();
-            var binary = new Image<Gray, byte>(gray.Width, gray.Height, new Gray(0));
-            CvInvoke.Threshold(gray, binary, threshold, 255, ThresholdType.Binary);
-            return binary;
+            var x = point.X - Locality / 2;
+            var y = point.Y - Locality / 2;
+            var localityRect = new Rect(
+                x < 0 ? 0 : x, 
+                y < 0 ? 0 : y, 
+                Locality, 
+                Locality);
+
+            var roi = new Mat(image, localityRect); 
+            
+            Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(roi, out contours, out hierarchy,
+                RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+            var largestContourIdx = FindLargestContourIndex(contours, hierarchy);
+            if (largestContourIdx < 0) return false;
+            var contour = contours[largestContourIdx];
+
+            return GetEnclosedAverageIntensity(roi, contour) > IntensityThreshold;
+        }
+
+        private double GetEnclosedAverageIntensity(Mat image, Point[] contour)
+        {
+            return Enumerable.Range(0, image.Width)
+                .SelectMany(x => Enumerable.Range(0, image.Height)
+                    .Select(y => new Point(x, y)))
+                .Where(p => Cv2.PointPolygonTest(contour, p, true) > PolygonTestDistance)
+                .Select(p => (int)image.Get<byte>(p.Y, p.X))
+                .DefaultIfEmpty(-1)
+                .Average();
+        }
+
+        private int FindLargestContourIndex(Point[][] contours, HierarchyIndex[] hierarchy)
+        {
+            var contoursDict = Enumerable
+                .Range(0, hierarchy.Length)
+                .GroupBy(idx => hierarchy[idx].Parent)
+                .Where(gr => gr.Key >= 0)
+                .ToDictionary(gr =>
+                    gr.Key,
+                    gr => gr.Sum(idx => Cv2.ContourArea(contours[idx])));
+
+            if (contoursDict.Count == 0) return -1;
+
+            return contoursDict
+                .Aggregate((p1, p2) => p1.Value > p2.Value ? p1 : p2)
+                .Key;
+        }
+
+        private void Rotate(Mat src, double angle)
+        {
+            var center = new Point2f(src.Width / 2f, src.Height / 2f);
+            var rotationMatrix = Cv2.GetRotationMatrix2D(center, angle, 1);
+            Cv2.WarpAffine(src, src, rotationMatrix, src.Size());
         }
     }
 }

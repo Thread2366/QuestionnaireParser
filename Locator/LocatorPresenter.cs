@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace QuestionnaireParser.Locator
+namespace Locator
 {
     class LocatorPresenter
     {
@@ -16,16 +17,13 @@ namespace QuestionnaireParser.Locator
         private int currentPage = 0;
         private int currentLine = 0;
 
-        Size selectionSize = new Size(50, 50);
-
         private IEnumerable<Point> SelectedPoints { get => Model.GetPointsLine(currentPage, currentLine); }
 
-        public LocatorPresenter(ILocatorView view, string templatePdfPath)
+        public LocatorPresenter(ILocatorView view)
         {
             if (view == null) throw new ArgumentException("View cannot be null");
 
             View = view;
-            Model = new LocatorModel(templatePdfPath);
 
             View.PrevPageClick += OnPrevPageClick;
             View.NextPageClick += OnNextPageClick;
@@ -34,10 +32,8 @@ namespace QuestionnaireParser.Locator
             View.Selecting += OnSelecting;
             View.Scrolling += OnScroll;
             View.SaveClick += OnSave;
+            View.OpenClick += OnOpen;
             View.HelpClick += OnHelp;
-
-            UpdatePage();
-            UpdateLine();
         }
 
         private void OnPrevPageClick(object sender, EventArgs e)
@@ -91,7 +87,20 @@ namespace QuestionnaireParser.Locator
         {
             var savePath = View.SaveDialog();
             if (savePath == null) return;
-            Model.SaveToXml(savePath);
+            Model.SaveToXml(Path.Combine(savePath, "inputLocations.xml"));
+        }
+
+        private void OnOpen(object sender, EventArgs e)
+        {
+            var templatePdfPath = View.OpenDialog();
+            if (templatePdfPath == null) return;
+            if (Model != null) Model.Dispose();
+            Model = new LocatorModel(templatePdfPath);
+
+            currentPage = 0;
+            currentLine = 0;
+            UpdatePage();
+            UpdateLine();
         }
 
         private void OnHelp(object sender, EventArgs e)

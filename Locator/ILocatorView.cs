@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace QuestionnaireParser.Locator
+namespace Locator
 {
     interface ILocatorView
     {
@@ -16,14 +16,16 @@ namespace QuestionnaireParser.Locator
         void UpdatePage(int currentPage, int pagesCount, Image image);
         void UpdateLine(int currentLine);
         void PaintSelection(IEnumerable<Point> selection);
+        string OpenDialog();
         string SaveDialog();
         void ShowHelp();
 
+        event EventHandler SaveClick;
+        event EventHandler OpenClick;
         event EventHandler PrevPageClick;
         event EventHandler NextPageClick;
         event EventHandler PrevLineClick;
         event EventHandler NextLineClick;
-        event EventHandler SaveClick;
         event EventHandler HelpClick;
         event MouseEventHandler Selecting;
         event EventHandler Scrolling;
