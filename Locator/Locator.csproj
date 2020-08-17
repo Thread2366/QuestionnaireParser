@@ -77,9 +77,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GsUtils\GsUtils.csproj">
+    <ProjectReference Include="..\GsUtils\Utils.csproj">
       <Project>{945f813c-2560-493a-b921-3da22eed4924}</Project>
-      <Name>GsUtils</Name>
+      <Name>Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

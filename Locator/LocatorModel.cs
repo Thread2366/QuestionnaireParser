@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using GsUtils;
+using Utils;
 
 namespace Locator
 {
@@ -19,14 +19,17 @@ namespace Locator
         public LocatorModel(string templatePdfPath)
         {
             TemplatePdfPath = templatePdfPath;
-            var templateImgsPath = Path.Combine(
-                Environment.GetEnvironmentVariable("temp"), 
-                "QuestionnaireParser",
-                "Templates");
-            var templates = Gs.PdfToJpeg(TemplatePdfPath, templateImgsPath, "template");
-            TemplateImgs = templates.Select(path => Image.FromFile(path)).ToArray();
+            using (var templates = Gs.PdfToJpeg(TemplatePdfPath, $"Templates_{Guid.NewGuid()}", "template"))
+            {
+                TemplateImgs = templates.Files.Select(path =>
+                {
+                    using (var stream = File.OpenRead(path))
+                    {
+                        return Image.FromStream(stream);
+                    }
+                }).ToArray();
+            }
             if (TemplateImgs.Length == 0) throw new Exception("Invalid template pdf file");
-            //Locations = new List<List<List<Point>>>() { new List<List<Point>>() };
             Locations = new Dictionary<int, List<Point>>[TemplateImgs.Length];
             for (int i = 0; i < Locations.Length; i++) Locations[i] = new Dictionary<int, List<Point>>();
         }

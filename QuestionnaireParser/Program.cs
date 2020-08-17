@@ -1,6 +1,4 @@
-﻿using Emgu.CV;
-using Emgu.CV.Structure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -13,6 +11,7 @@ using System.Xml.Linq;
 using System.Threading;
 using System.Configuration;
 using System.Diagnostics;
+using Utils;
 
 namespace QuestionnaireParser
 {
@@ -31,6 +30,7 @@ namespace QuestionnaireParser
             {
                 var excelPath = Path.Combine(dir, $"{Path.GetFileName(dir)} - результаты.xlsx");
                 var inputLocationsPath = Path.Combine(dir, "inputLocations.xml");
+                if (!File.Exists(inputLocationsPath)) return;
                 var inputLocations = XElement.Parse(File.ReadAllText(inputLocationsPath));
                 var processedPath = Path.Combine(dir, "Обработано");
 
@@ -39,16 +39,11 @@ namespace QuestionnaireParser
                 if (!File.Exists(excelPath))
                     File.Copy(excelTemplate, excelPath);
 
+                var parser = new Parser(inputLocations);
                 var questionnaires = Directory.EnumerateFiles(dir, "*.pdf");
                 var answers = questionnaires
                     .AsParallel()
-                    .Select(scanPdf =>
-                    {
-                        using (var parser = new Parser(inputLocations, scanPdf))
-                        {
-                            return parser.Parse();
-                        }
-                    })
+                    .Select(scanPdf => parser.Parse(scanPdf))
                     .ToArray()
                     .SelectMany(qe => qe.SelectMany((qn, i) => qn.Select(ans => new { Answer = ans, Question = i })))
                     .GroupBy(x => x.Question)

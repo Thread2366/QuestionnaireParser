@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuestionnaireParser", "Ques
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Locator", "Locator\Locator.csproj", "{CD61A868-451E-4C3B-AAF9-8C4AC88797CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GsUtils", "GsUtils\GsUtils.csproj", "{945F813C-2560-493A-B921-3DA22EED4924}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "GsUtils\Utils.csproj", "{945F813C-2560-493A-B921-3DA22EED4924}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
