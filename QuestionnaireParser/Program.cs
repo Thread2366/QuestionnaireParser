@@ -19,8 +19,7 @@ namespace QuestionnaireParser
     {
         static void Main(string[] args)
         {
-            var path = @"C:\Users\virus\Desktop\Работа\Задача с анкетами";
-            //var path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
+            var path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
 
             var excelTemplate = Path.Combine(path, "Шаблон.xlsx");
 
