@@ -23,7 +23,7 @@ namespace QuestionnaireParser
         const double HoughMaxGap = 20;
         const double SkewMaxDeviation = 0.5;
         const int Locality = 150;
-        const int PolygonTestDistance = 10;
+        const int PolygonTestDistance = 7;
         const double IntensityThreshold = 20;
 
         private XElement InputLocations { get; }
